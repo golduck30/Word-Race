@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const m=require('../addons/spark-economy.js');
+const catalog={categories:Object.fromEntries(['skin','bottom','outfit','eyes','hair','glasses','beard'].map(x=>[x,[{id:'default',price:0}]])),petBases:[{id:'🐶',price:0},{id:'🐱',price:200},{id:'🐰',price:200}],petWings:[{id:'wing:none',price:0},{id:'wing:angel',price:550},{id:'wing:devil',price:1450}]};
+const state={users:{},rooms:{}};
+let a=m.mutateWallet(state,'uid-1',catalog);assert.equal(a.coins,200);
+assert.throws(()=>m.mutatePetEquip(state,'uid-1',catalog,'wing','wing:angel'),/먼저 구매/);
+a=m.mutatePetImport(state,'uid-1',catalog,{nick:'빠글이',owned:['🐱','wing:angel','item:fake'],eq:{a:'🐱',wing:'wing:angel'}});
+assert.equal(a.petLook.base,'🐱');assert.equal(a.petLook.wing,'wing:angel');assert.equal(a.petOwned.bases['🐱'],true);assert.equal(a.petOwned.wings['wing:angel'],true);assert.equal(a.coins,200);assert.equal(a.petOwned.wings['item:fake'],undefined);
+assert.throws(()=>m.mutatePetImport(state,'uid-1',catalog,{nick:'빠글이',owned:['🐰'],eq:{a:'🐰'}}),/이미/);
+a=m.mutatePetEquip(state,'uid-1',catalog,'base','🐱');assert.equal(a.petLook.base,'🐱');
+assert.throws(()=>m.mutatePetBuy(state,'uid-1',catalog,'wing','wing:devil'),/코인이 부족/);
+a=m.mutatePetBuy(state,'uid-1',catalog,'base','🐰');assert.equal(a.coins,0);assert.equal(a.petOwned.bases['🐰'],true);
+console.log('pet inventory migration and purchase tests passed');

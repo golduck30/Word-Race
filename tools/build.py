@@ -19,6 +19,12 @@ source=(DIST/'game.js').read_text(encoding='utf-8')
 anchors=['function calcRoundScores(data)', 'function nextRound()', 'function startRound(data, nextMasterUid, commitScores, extra)', 'function updateScoreboard(data)', 'function avatarHtml(av, size, bounce)', 'function openShop()', 'function awardCoinsOnce(key, amount)']
 for a in anchors:
     if source.count(a)!=1:sys.exit(f'Original todayword anchor changed: {a!r}')
+# Build pet catalog from the original todayword constants; preserve original IDs/prices.
+# The source still owns AVATAR_BASES and EXTRA_SHOP_ITEMS, so there is no duplicated catalog.
+source += '''\nwindow.WR_PET_CATALOG = {
+  bases: AVATAR_BASES.map(x=>({id:x.id,name:x.n,price:Number(x.p)||0})),
+  wings: EXTRA_SHOP_ITEMS.wing.map(x=>({id:x.id,name:x.n,price:Number(x.p)||0}))
+};\n'''
 # Match source Firebase initialization and replace hardcoded connection with new standalone Firebase config.
 source,count=re.subn(r'const firebaseConfig\s*=\s*\{.*?\};', 'const firebaseConfig = window.WORD_RACE_FIREBASE_CONFIG;',source,count=1,flags=re.S)
 if count!=1:sys.exit('Firebase config anchor changed')
@@ -52,6 +58,7 @@ html=html.replace('<script src="https://www.gstatic.com/firebasejs/9.23.0/fireba
 html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css">\n</head>',1)
 html=html.replace('<script src="game.js?v=4"></script>', '''<script src="firebase-config.js"></script>
     <script src="addons/spark-economy.js"></script>
+    <script src="addons/pet-upgrade.js"></script>
     <script src="addons/word-race.js"></script>
     <script src="addons/bootstrap.js"></script>''')
 (DIST/'index.html').write_text(html,encoding='utf-8')

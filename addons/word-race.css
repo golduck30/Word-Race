@@ -32,3 +32,14 @@ body{background:linear-gradient(145deg,#f5f0ff 0%,#f7fff8 55%,#fff8ed 100%)!impo
 .wr-prediction{display:grid;gap:10px}.wr-pick{display:flex;gap:8px;flex-wrap:wrap}.wr-note{font-size:12px;color:#726689;line-height:1.6}
 @media(max-width:550px){.wr-shell{margin:5px auto 10px;padding:0 7px}.wr-race{min-height:148px}.wr-runner{width:48px;bottom:30px}.wr-runner .wr-name{font-size:9px;max-width:60px}.wr-closet{grid-template-columns:1fr}.wr-preview{min-height:200px}.wr-preview .wr-avatar{--w:116px}.wr-grid{max-height:32vh}.wr-top{padding:10px}}
 @media(prefers-reduced-motion:reduce){.wr-runner,.wr-runner .wr-avatar{animation:none;transition:none}}
+/* Original todayword emoji pet layer on shared race lane */
+.wr-pet{width:var(--pet-size);height:var(--pet-size);display:inline-flex;position:relative;align-items:center;justify-content:center;flex:none;vertical-align:middle}
+.wr-pet-base{position:relative;font-size:calc(var(--pet-size)*.75);line-height:1;z-index:2}
+.wr-pet-wings{position:absolute;width:155%;height:110%;top:-5%;left:-27%;object-fit:contain;z-index:1;pointer-events:none}
+.wr-pet-follower{position:absolute;left:-18px;bottom:-3px;animation:wrPetHop .65s ease-in-out infinite alternate;pointer-events:none}
+@keyframes wrPetHop{to{transform:translateY(-5px)}}
+.wr-pet-closet{display:grid;grid-template-columns:minmax(160px,32%) 1fr;gap:18px}
+.wr-pet-showcase{background:#f1eaff;border-radius:15px;padding:20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center}
+.wr-pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;max-height:53vh;overflow:auto}
+.wr-pet-item-image{height:74px;display:flex;align-items:center;justify-content:center;font-size:43px}
+@media(max-width:550px){.wr-pet-closet{grid-template-columns:1fr}.wr-pet-showcase{padding:12px}.wr-pet-follower{left:-12px}}
