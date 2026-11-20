@@ -6,7 +6,7 @@
  if(root)root.WordRaceSparkEconomy=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const START=200,ENTRY=20,CATS=['skin','bottom','outfit','eyes','hair','frontHair','backHair','glasses','beard','fantasy'];
+ const START=200,ENTRY=20,CATS=['skin','bottom','outfit','eyes','hair','frontHair','backHair','glasses','beard'];
  const copy=x=>JSON.parse(JSON.stringify(x));
  const own=(obj,key)=>Object.prototype.hasOwnProperty.call(obj||{},key);
  const arr=x=>Array.isArray(x)?x:Object.values(x||{});

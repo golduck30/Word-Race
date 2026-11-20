@@ -21,7 +21,7 @@ function typeKey(key){
    if(decompose(input.value).length>=length)return;
    pieces.push(key);input.value=Hangul.assemble(pieces);
  }
- input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();
+ input.dispatchEvent(new Event('input',{bubbles:true}));if(matchMedia('(pointer:fine)').matches)input.focus();
 }
 $('soloKeyboard').addEventListener('click',e=>{const btn=e.target.closest('[data-key]');if(btn)typeKey(btn.dataset.key)});
 $('soloInput').addEventListener('input',render);
@@ -29,7 +29,7 @@ function render(){ $('soloBoard').style.setProperty('--solo-length',String(lengt
 async function fresh(){
  length=Number($('soloLength').value);limit=$('soloTime').value==='attack'?LIMIT[length]:0;ended=true;
  $('soloMessage').textContent='원본 사전을 불러오는 중…';$('soloNext').disabled=true;
- try{await ensureDictionaryForLength(length);const words=[...dictSet].filter(w=>decompose(w).length===length);if(!words.length)throw Error('사전이 비어 있습니다');secret=words[Math.floor(Math.random()*words.length)];secretJamo=decompose(secret);tries=[];ended=false;start=Date.now();$('soloMessage').textContent='게임 시작! 힌트 없이 5번 안에 맞혀보세요.';$('soloInput').value='';Object.keys(keyColors).forEach(k=>delete keyColors[k]);renderKeyboard();render();refreshClock();$('soloInput').focus()}
+ try{await ensureDictionaryForLength(length);const words=[...dictSet].filter(w=>decompose(w).length===length);if(!words.length)throw Error('사전이 비어 있습니다');secret=words[Math.floor(Math.random()*words.length)];secretJamo=decompose(secret);tries=[];ended=false;start=Date.now();$('soloMessage').textContent='게임 시작! 힌트 없이 5번 안에 맞혀보세요.';$('soloInput').value='';Object.keys(keyColors).forEach(k=>delete keyColors[k]);renderKeyboard();render();refreshClock();if(matchMedia('(pointer:fine)').matches)$('soloInput').focus()}
  catch(e){$('soloMessage').textContent='사전 로딩 오류: '+e.message}finally{$('soloNext').disabled=false}
 }
 function refreshClock(){if(ended||!start)return;$('soloTimer').textContent=limit?`⏱ ${Math.max(0,Math.ceil(limit-(Date.now()-start)/1000))}초 남음`:'⏱ 무제한 모드';if(limit&&Date.now()-start>=limit*1000){ended=true;$('soloMessage').textContent=`시간 종료! 정답: ${secret} · 획득 코인 0개`}}

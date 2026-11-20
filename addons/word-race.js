@@ -4,21 +4,29 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',frontHair:'앞머리',backHair:'뒷머리',glasses:'안경',beard:'수염',fantasy:'판타지 변신'};
-const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',frontHair:'',backHair:'none',glasses:'none',beard:'none',fantasy:'none'};
+const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',frontHair:'앞머리',backHair:'뒷머리',glasses:'안경',beard:'수염'};
+const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',frontHair:'',backHair:'none',glasses:'none',beard:'none'};
 let catalog={},look={...DEFAULT},wallet={coins:0,owned:{},look:{}},uid='',activeCat='outfit',busy=false,economy=null;
 let lastSettling='',settleBusy=false,lastBoundNickname='',bindingNickname=false;
 let previewSelection=null;
 const safeFile=f=>typeof f==='string'&&/^assets\/nonemo\/[a-zA-Z0-9_./-]+\.png$/.test(f)&&!f.includes('..');
 const pick=(cat,id)=> (catalog[cat]||[]).find(it=>it.id===id)||(catalog[cat]||[])[0];
-function avatar(customLook,size=48,bounce=false){
-  const L={...DEFAULT,...customLook};const w=Math.max(22,Math.min(210,Number(size)||48));
-  // Old hair selections carry over as equivalent front hair, with no second purchase.
-  if ((!customLook?.frontHair) && customLook?.hair) L.frontHair=customLook.hair;
-  const fantasyItem=L.fantasy && L.fantasy!=='none'?pick('fantasy',L.fantasy):null;
-  const layerOrder=fantasyItem?.id!=='none' && safeFile(fantasyItem?.file)?['fantasy']:['backHair','skin','bottom','outfit','eyes','frontHair','glasses','beard'];
-  const images=layerOrder.map(cat=>{const item=pick(cat,L[cat]);return safeFile(item?.file)?`<img alt="" src="${item.file}" draggable="false" loading="lazy">`:''}).join('');
-  return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px">${images}</span>`;
+// All nonemo layers are pre-aligned on one 290 x 356 transparent pixel canvas.
+// Each item is rendered at the same intrinsic size. Never crop/resize a single part.
+const LAYER_ORDER=['backHair','skin','bottom','outfit','eyes','frontHair','glasses','beard'];
+function normalizedLook(raw={}){
+  const v={...DEFAULT,...(raw||{})};
+  if (!raw?.frontHair && raw?.hair) v.frontHair=raw.hair;
+  return v;
+}
+function avatar(customLook={},size=48,bounce=false){
+  const L=normalizedLook(customLook);
+  const w=Math.max(22,Math.min(210,Number(size)||48));
+  const images=LAYER_ORDER.map(cat=>{
+    const it=pick(cat,L[cat]);
+    return safeFile(it?.file)?`<img class="wr-layer wr-layer-${cat}" src="${it.file}" alt="" draggable="false" loading="lazy" width="290" height="356">`:'';
+  }).join('');
+  return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px" role="img" aria-label="커스터마이징 캐릭터">${images}</span>`;
 }
 function injectUI(){
  if($('wrShell'))return;
@@ -82,7 +90,7 @@ function previewLook(){
  return previewSelection?{...look,[previewSelection.cat]:previewSelection.id}:look;
 }
 function redrawPreview(){
- const view=$('wrPreviewAvatar');if(view)view.innerHTML=avatar(previewLook(),150);
+ const view=$('wrPreviewAvatar');if(view)view.innerHTML=avatar(previewLook(),176);
  const title=$('wrPreviewTitle'),hint=$('wrPreviewHint'),button=$('wrPreviewAction');
  if(!previewSelection){
    if(title)title.textContent='현재 장착 중인 코디';
@@ -93,7 +101,7 @@ function redrawPreview(){
  const {cat,id}=previewSelection,it=pick(cat,id);if(!it)return;
  const own=itemOwned(cat,it);
  if(title)title.textContent=`미리보기: ${it.name}`;
- if(hint)hint.textContent=own?'이미 보유한 아이템이에요.':'미리보기만으로 코인이 차감되지 않아요.';
+ if(hint)hint.textContent=own?'미리 착용 중 · 보유 아이템입니다. 장착 버튼을 눌러 확정해 주세요.':'미리 착용 중 · 코인은 구매 버튼을 누를 때만 차감됩니다.';
  if(button){button.disabled=busy||look[cat]===id;button.textContent=look[cat]===id?'이미 장착 중':own?'선택한 아이템 장착':`🪙 ${Number(it.price)}코인에 구매 후 장착`}
 }
 async function openCloset(){
@@ -102,7 +110,7 @@ async function openCloset(){
    try{await loadCatalog()}catch(e){openModal('드레스룸 오류',`<p class="wr-note">아이템 목록을 읽지 못했어요: ${escape(e.message)}</p><button class="wr-btn" id="wrCatalogRetry">다시 불러오기</button>`);$('wrCatalogRetry').onclick=openCloset;return;}
  }
  const tabs=Object.entries(CATS).map(([k,v])=>`<button class="wr-btn${activeCat===k?' primary':''}" data-tab="${k}">${v} (${(catalog[k]||[]).length})</button>`).join('');
- openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(previewLook(),150)}</div><strong id="wrPreviewTitle"></strong><div class="wr-note" id="wrPreviewHint"></div><button id="wrPreviewAction" class="wr-btn primary" type="button"></button><button id="wrPreviewReset" class="wr-btn" type="button">미리보기 취소</button></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
+ openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(previewLook(),176)}</div><strong id="wrPreviewTitle"></strong><div class="wr-note" id="wrPreviewHint"></div><button id="wrPreviewAction" class="wr-btn primary" type="button"></button><button id="wrPreviewReset" class="wr-btn" type="button">미리보기 취소</button></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
  $('wrTabs').onclick=e=>{const btn=e.target.closest('[data-tab]');if(!btn)return;activeCat=btn.dataset.tab;previewSelection=null;openCloset()};
  $('wrPreviewReset').onclick=()=>{previewSelection=null;redrawPreview();renderItems()};
  $('wrPreviewAction').onclick=async()=>{
@@ -131,7 +139,7 @@ function renderItems(){
  if(!items.length){grid.innerHTML='<p class="wr-note">이 카테고리의 아이템이 비어 있어요. catalog.json과 이미지 파일을 확인해 주세요.</p>';return;}
  grid.innerHTML=items.map(it=>{
   const owned=itemOwned(activeCat,it),equipped=look[activeCat]===it.id,selected=previewSelection?.cat===activeCat&&previewSelection?.id===it.id;
-  const picture=safeFile(it.file)?`<img src="${it.file}" alt="${escape(it.name)}" loading="lazy">`:'<div class="wr-empty-item">미착용</div>';
+  const picture=avatar({...look,[activeCat]:it.id},82);
   return `<button type="button" class="wr-item${equipped?' active':''}${selected?' wr-tryon':''}" data-id="${escape(it.id)}" aria-label="${escape(it.name)} 미리보기">${picture}<strong>${escape(it.name)}</strong><span class="price">${equipped?'장착 중':owned?'보유 · 미리보기':'🪙 '+Number(it.price)}</span></button>`;
  }).join('');
  grid.onclick=e=>{
@@ -160,7 +168,7 @@ async function beforeNextRound(){
  try{await call('wrSettle',{roomCode:room,roundId:data.round});await syncWallet();return true}
  catch(e){alert('이번 라운드 예측 정산을 확인할 수 없어 다음 라운드를 중지했습니다.\n'+e.message);return false}
 }
-async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261120b', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
+async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261120c', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
 function initOffline(){injectUI();loadCatalog().catch(console.warn);}
 async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  economy=WordRaceSparkEconomy.createClient(firebase.database(),uid,{categories:catalog,petBases:window.WR_PET_CATALOG?.bases||[],petWings:window.WR_PET_CATALOG?.wings||[]},()=>Date.now()+(typeof serverOffset!=='undefined'?serverOffset:0));

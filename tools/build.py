@@ -12,7 +12,9 @@ if not (SOURCE/'game.js').is_file():
 if DIST.exists():shutil.rmtree(DIST)
 shutil.copytree(SOURCE,DIST,ignore=shutil.ignore_patterns('.git','.github','__pycache__'))
 for rel in ['assets/nonemo','addons']:
-    shutil.copytree(ROOT/rel,DIST/rel,dirs_exist_ok=True)
+    # Fantasy transformations are retired; do not publish legacy fantasy assets.
+    ignore = shutil.ignore_patterns('fantasy','fantasy_parts') if rel=='assets/nonemo' else None
+    shutil.copytree(ROOT/rel,DIST/rel,dirs_exist_ok=True,ignore=ignore)
 for file in ['solo.html','solo.js','firebase-config.js']:
     shutil.copy2(ROOT/file,DIST/file)
 source=(DIST/'game.js').read_text(encoding='utf-8')
@@ -72,11 +74,11 @@ html=html.replace('<title>오늘의 단어 - 대결 모드</title>','<title>Word
 html=html.replace('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>', '''<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 ''')
-html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css?v=20261120b">\n</head>',1)
+html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css?v=20261120c">\n</head>',1)
 html=html.replace('<script src="game.js?v=4"></script>', '''<script src="firebase-config.js"></script>
-    <script src="addons/spark-economy.js?v=20261120b"></script>
-    <script src="addons/pet-upgrade.js?v=20261120b"></script>
-    <script src="addons/word-race.js?v=20261120b"></script>
+    <script src="addons/spark-economy.js?v=20261120c"></script>
+    <script src="addons/pet-upgrade.js?v=20261120c"></script>
+    <script src="addons/word-race.js?v=20261120c"></script>
     <script src="addons/bootstrap.js"></script>''')
 (DIST/'index.html').write_text(html,encoding='utf-8')
 assert (DIST/'dict/8.js').is_file(), '8 jamo dictionary missing'
