@@ -1142,6 +1142,517 @@
         "file": "assets/nonemo/beard/short_white.png",
         "price": 60
       }
+    ],
+    "frontHair": [
+      {
+        "id": "regular_brown",
+        "name": "regular brown",
+        "file": "assets/nonemo/frontHair/regular_brown.png",
+        "price": 0
+      },
+      {
+        "id": "chupchik_black",
+        "name": "chupchik black",
+        "file": "assets/nonemo/frontHair/chupchik_black.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_blond",
+        "name": "chupchik blond",
+        "file": "assets/nonemo/frontHair/chupchik_blond.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_blue",
+        "name": "chupchik blue",
+        "file": "assets/nonemo/frontHair/chupchik_blue.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_brown",
+        "name": "chupchik brown",
+        "file": "assets/nonemo/frontHair/chupchik_brown.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_green",
+        "name": "chupchik green",
+        "file": "assets/nonemo/frontHair/chupchik_green.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_orange",
+        "name": "chupchik orange",
+        "file": "assets/nonemo/frontHair/chupchik_orange.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_red",
+        "name": "chupchik red",
+        "file": "assets/nonemo/frontHair/chupchik_red.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_violet",
+        "name": "chupchik violet",
+        "file": "assets/nonemo/frontHair/chupchik_violet.png",
+        "price": 85
+      },
+      {
+        "id": "chupchik_white",
+        "name": "chupchik white",
+        "file": "assets/nonemo/frontHair/chupchik_white.png",
+        "price": 85
+      },
+      {
+        "id": "curly_black",
+        "name": "curly black",
+        "file": "assets/nonemo/frontHair/curly_black.png",
+        "price": 85
+      },
+      {
+        "id": "curly_blond",
+        "name": "curly blond",
+        "file": "assets/nonemo/frontHair/curly_blond.png",
+        "price": 85
+      },
+      {
+        "id": "curly_blue",
+        "name": "curly blue",
+        "file": "assets/nonemo/frontHair/curly_blue.png",
+        "price": 85
+      },
+      {
+        "id": "curly_brown",
+        "name": "curly brown",
+        "file": "assets/nonemo/frontHair/curly_brown.png",
+        "price": 85
+      },
+      {
+        "id": "curly_green",
+        "name": "curly green",
+        "file": "assets/nonemo/frontHair/curly_green.png",
+        "price": 85
+      },
+      {
+        "id": "curly_orange",
+        "name": "curly orange",
+        "file": "assets/nonemo/frontHair/curly_orange.png",
+        "price": 85
+      },
+      {
+        "id": "curly_red",
+        "name": "curly red",
+        "file": "assets/nonemo/frontHair/curly_red.png",
+        "price": 85
+      },
+      {
+        "id": "curly_violet",
+        "name": "curly violet",
+        "file": "assets/nonemo/frontHair/curly_violet.png",
+        "price": 85
+      },
+      {
+        "id": "curly_white",
+        "name": "curly white",
+        "file": "assets/nonemo/frontHair/curly_white.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_black",
+        "name": "elegant black",
+        "file": "assets/nonemo/frontHair/elegant_black.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_blond",
+        "name": "elegant blond",
+        "file": "assets/nonemo/frontHair/elegant_blond.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_blue",
+        "name": "elegant blue",
+        "file": "assets/nonemo/frontHair/elegant_blue.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_brown",
+        "name": "elegant brown",
+        "file": "assets/nonemo/frontHair/elegant_brown.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_green",
+        "name": "elegant green",
+        "file": "assets/nonemo/frontHair/elegant_green.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_orange",
+        "name": "elegant orange",
+        "file": "assets/nonemo/frontHair/elegant_orange.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_red",
+        "name": "elegant red",
+        "file": "assets/nonemo/frontHair/elegant_red.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_violet",
+        "name": "elegant violet",
+        "file": "assets/nonemo/frontHair/elegant_violet.png",
+        "price": 85
+      },
+      {
+        "id": "elegant_white",
+        "name": "elegant white",
+        "file": "assets/nonemo/frontHair/elegant_white.png",
+        "price": 85
+      },
+      {
+        "id": "regular_black",
+        "name": "regular black",
+        "file": "assets/nonemo/frontHair/regular_black.png",
+        "price": 85
+      },
+      {
+        "id": "regular_blond",
+        "name": "regular blond",
+        "file": "assets/nonemo/frontHair/regular_blond.png",
+        "price": 85
+      },
+      {
+        "id": "regular_blue",
+        "name": "regular blue",
+        "file": "assets/nonemo/frontHair/regular_blue.png",
+        "price": 85
+      },
+      {
+        "id": "regular_green",
+        "name": "regular green",
+        "file": "assets/nonemo/frontHair/regular_green.png",
+        "price": 85
+      },
+      {
+        "id": "regular_orange",
+        "name": "regular orange",
+        "file": "assets/nonemo/frontHair/regular_orange.png",
+        "price": 85
+      },
+      {
+        "id": "regular_red",
+        "name": "regular red",
+        "file": "assets/nonemo/frontHair/regular_red.png",
+        "price": 85
+      },
+      {
+        "id": "regular_violet",
+        "name": "regular violet",
+        "file": "assets/nonemo/frontHair/regular_violet.png",
+        "price": 85
+      },
+      {
+        "id": "regular_white",
+        "name": "regular white",
+        "file": "assets/nonemo/frontHair/regular_white.png",
+        "price": 85
+      },
+      {
+        "id": "straight_black",
+        "name": "straight black",
+        "file": "assets/nonemo/frontHair/straight_black.png",
+        "price": 85
+      },
+      {
+        "id": "straight_blond",
+        "name": "straight blond",
+        "file": "assets/nonemo/frontHair/straight_blond.png",
+        "price": 85
+      },
+      {
+        "id": "straight_blue",
+        "name": "straight blue",
+        "file": "assets/nonemo/frontHair/straight_blue.png",
+        "price": 85
+      },
+      {
+        "id": "straight_brown",
+        "name": "straight brown",
+        "file": "assets/nonemo/frontHair/straight_brown.png",
+        "price": 85
+      },
+      {
+        "id": "straight_green",
+        "name": "straight green",
+        "file": "assets/nonemo/frontHair/straight_green.png",
+        "price": 85
+      },
+      {
+        "id": "straight_orange",
+        "name": "straight orange",
+        "file": "assets/nonemo/frontHair/straight_orange.png",
+        "price": 85
+      },
+      {
+        "id": "straight_red",
+        "name": "straight red",
+        "file": "assets/nonemo/frontHair/straight_red.png",
+        "price": 85
+      },
+      {
+        "id": "straight_violet",
+        "name": "straight violet",
+        "file": "assets/nonemo/frontHair/straight_violet.png",
+        "price": 85
+      },
+      {
+        "id": "straight_white",
+        "name": "straight white",
+        "file": "assets/nonemo/frontHair/straight_white.png",
+        "price": 85
+      }
+    ],
+    "backHair": [
+      {
+        "id": "none",
+        "name": "뒷머리 없음",
+        "file": "",
+        "price": 0
+      },
+      {
+        "id": "curly_black",
+        "name": "curly / black 뒷머리",
+        "file": "assets/nonemo/backHair/curly_black.png",
+        "price": 90
+      },
+      {
+        "id": "curly_blond",
+        "name": "curly / blond 뒷머리",
+        "file": "assets/nonemo/backHair/curly_blond.png",
+        "price": 90
+      },
+      {
+        "id": "curly_blue",
+        "name": "curly / blue 뒷머리",
+        "file": "assets/nonemo/backHair/curly_blue.png",
+        "price": 90
+      },
+      {
+        "id": "curly_brown",
+        "name": "curly / brown 뒷머리",
+        "file": "assets/nonemo/backHair/curly_brown.png",
+        "price": 90
+      },
+      {
+        "id": "curly_green",
+        "name": "curly / green 뒷머리",
+        "file": "assets/nonemo/backHair/curly_green.png",
+        "price": 90
+      },
+      {
+        "id": "curly_orange",
+        "name": "curly / orange 뒷머리",
+        "file": "assets/nonemo/backHair/curly_orange.png",
+        "price": 90
+      },
+      {
+        "id": "curly_red",
+        "name": "curly / red 뒷머리",
+        "file": "assets/nonemo/backHair/curly_red.png",
+        "price": 90
+      },
+      {
+        "id": "curly_violet",
+        "name": "curly / violet 뒷머리",
+        "file": "assets/nonemo/backHair/curly_violet.png",
+        "price": 90
+      },
+      {
+        "id": "curly_white",
+        "name": "curly / white 뒷머리",
+        "file": "assets/nonemo/backHair/curly_white.png",
+        "price": 90
+      },
+      {
+        "id": "long_black",
+        "name": "long / black 뒷머리",
+        "file": "assets/nonemo/backHair/long_black.png",
+        "price": 90
+      },
+      {
+        "id": "long_blond",
+        "name": "long / blond 뒷머리",
+        "file": "assets/nonemo/backHair/long_blond.png",
+        "price": 90
+      },
+      {
+        "id": "long_blue",
+        "name": "long / blue 뒷머리",
+        "file": "assets/nonemo/backHair/long_blue.png",
+        "price": 90
+      },
+      {
+        "id": "long_brown",
+        "name": "long / brown 뒷머리",
+        "file": "assets/nonemo/backHair/long_brown.png",
+        "price": 90
+      },
+      {
+        "id": "long_green",
+        "name": "long / green 뒷머리",
+        "file": "assets/nonemo/backHair/long_green.png",
+        "price": 90
+      },
+      {
+        "id": "long_orange",
+        "name": "long / orange 뒷머리",
+        "file": "assets/nonemo/backHair/long_orange.png",
+        "price": 90
+      },
+      {
+        "id": "long_red",
+        "name": "long / red 뒷머리",
+        "file": "assets/nonemo/backHair/long_red.png",
+        "price": 90
+      },
+      {
+        "id": "long_violet",
+        "name": "long / violet 뒷머리",
+        "file": "assets/nonemo/backHair/long_violet.png",
+        "price": 90
+      },
+      {
+        "id": "long_white",
+        "name": "long / white 뒷머리",
+        "file": "assets/nonemo/backHair/long_white.png",
+        "price": 90
+      },
+      {
+        "id": "short_black",
+        "name": "short / black 뒷머리",
+        "file": "assets/nonemo/backHair/short_black.png",
+        "price": 90
+      },
+      {
+        "id": "short_blond",
+        "name": "short / blond 뒷머리",
+        "file": "assets/nonemo/backHair/short_blond.png",
+        "price": 90
+      },
+      {
+        "id": "short_blue",
+        "name": "short / blue 뒷머리",
+        "file": "assets/nonemo/backHair/short_blue.png",
+        "price": 90
+      },
+      {
+        "id": "short_brown",
+        "name": "short / brown 뒷머리",
+        "file": "assets/nonemo/backHair/short_brown.png",
+        "price": 90
+      },
+      {
+        "id": "short_green",
+        "name": "short / green 뒷머리",
+        "file": "assets/nonemo/backHair/short_green.png",
+        "price": 90
+      },
+      {
+        "id": "short_orange",
+        "name": "short / orange 뒷머리",
+        "file": "assets/nonemo/backHair/short_orange.png",
+        "price": 90
+      },
+      {
+        "id": "short_red",
+        "name": "short / red 뒷머리",
+        "file": "assets/nonemo/backHair/short_red.png",
+        "price": 90
+      },
+      {
+        "id": "short_violet",
+        "name": "short / violet 뒷머리",
+        "file": "assets/nonemo/backHair/short_violet.png",
+        "price": 90
+      },
+      {
+        "id": "short_white",
+        "name": "short / white 뒷머리",
+        "file": "assets/nonemo/backHair/short_white.png",
+        "price": 90
+      }
+    ],
+    "fantasy": [
+      {
+        "id": "none",
+        "name": "일반 캐릭터",
+        "file": "",
+        "price": 0
+      },
+      {
+        "id": "dwarf",
+        "name": "드워프",
+        "file": "assets/nonemo/fantasy/dwarf.png",
+        "price": 280
+      },
+      {
+        "id": "fairy",
+        "name": "요정",
+        "file": "assets/nonemo/fantasy/fairy.png",
+        "price": 220
+      },
+      {
+        "id": "ghost",
+        "name": "유령",
+        "file": "assets/nonemo/fantasy/ghost.png",
+        "price": 220
+      },
+      {
+        "id": "knight",
+        "name": "기사",
+        "file": "assets/nonemo/fantasy/knight.png",
+        "price": 350
+      },
+      {
+        "id": "ogre",
+        "name": "오우거",
+        "file": "assets/nonemo/fantasy/ogre.png",
+        "price": 280
+      },
+      {
+        "id": "skeleton",
+        "name": "해골",
+        "file": "assets/nonemo/fantasy/skeleton.png",
+        "price": 300
+      },
+      {
+        "id": "vampire",
+        "name": "뱀파이어",
+        "file": "assets/nonemo/fantasy/vampire.png",
+        "price": 400
+      },
+      {
+        "id": "witch",
+        "name": "마녀",
+        "file": "assets/nonemo/fantasy/witch.png",
+        "price": 380
+      },
+      {
+        "id": "wizard",
+        "name": "마법사",
+        "file": "assets/nonemo/fantasy/wizard.png",
+        "price": 380
+      },
+      {
+        "id": "zombie",
+        "name": "좀비",
+        "file": "assets/nonemo/fantasy/zombie.png",
+        "price": 280
+      }
     ]
-  }
+  },
+  "fantasySource": "https://nonemo.itch.io/fantasy-creatures-asset-pack"
 }

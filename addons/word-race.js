@@ -4,15 +4,19 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',hair:'헤어',glasses:'안경',beard:'수염'};
-const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',hair:'',glasses:'none',beard:'none'};
+const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',frontHair:'앞머리',backHair:'뒷머리',glasses:'안경',beard:'수염',fantasy:'판타지 변신'};
+const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',frontHair:'',backHair:'none',glasses:'none',beard:'none',fantasy:'none'};
 let catalog={},look={...DEFAULT},wallet={coins:0,owned:{},look:{}},uid='',activeCat='outfit',busy=false,economy=null;
 let lastSettling='',settleBusy=false,lastBoundNickname='',bindingNickname=false;
 const safeFile=f=>typeof f==='string'&&/^assets\/nonemo\/[a-zA-Z0-9_./-]+\.png$/.test(f)&&!f.includes('..');
 const pick=(cat,id)=> (catalog[cat]||[]).find(it=>it.id===id)||(catalog[cat]||[])[0];
 function avatar(customLook,size=48,bounce=false){
   const L={...DEFAULT,...customLook};const w=Math.max(22,Math.min(210,Number(size)||48));
-  const images=Object.keys(CATS).map(cat=>{const item=pick(cat,L[cat]);return safeFile(item?.file)?`<img alt="" src="${item.file}" draggable="false" loading="lazy">`:''}).join('');
+  // Old hair selections carry over as equivalent front hair, with no second purchase.
+  if ((!customLook?.frontHair) && customLook?.hair) L.frontHair=customLook.hair;
+  const fantasyItem=L.fantasy && L.fantasy!=='none'?pick('fantasy',L.fantasy):null;
+  const layerOrder=fantasyItem?.id!=='none' && safeFile(fantasyItem?.file)?['fantasy']:['backHair','skin','bottom','outfit','eyes','frontHair','glasses','beard'];
+  const images=layerOrder.map(cat=>{const item=pick(cat,L[cat]);return safeFile(item?.file)?`<img alt="" src="${item.file}" draggable="false" loading="lazy">`:''}).join('');
   return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px">${images}</span>`;
 }
 function injectUI(){
@@ -65,29 +69,29 @@ async function bindCurrentNickname(){
   bindingNickname=true;
   try{
     const result=await call('wrBindNickname',{nickname:nick});
-    lastBoundNickname=nick;wallet=result;look={...DEFAULT,...(wallet.look||{})};renderWallet();
+    lastBoundNickname=nick;wallet=result;look={...DEFAULT,...(wallet.look||{})}; if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet();
   }catch(err){console.warn('닉네임 아이템 동기화 실패:',err.message)}
   finally{bindingNickname=false}
 }
-async function syncWallet(){try{wallet=await call('wrWallet');look={...DEFAULT,...wallet.look};renderWallet()}catch(e){console.warn('wallet:',e.message)}}
+async function syncWallet(){try{wallet=await call('wrWallet');look={...DEFAULT,...wallet.look};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet()}catch(e){console.warn('wallet:',e.message)}}
 async function openCloset(){
  const tabs=Object.entries(CATS).map(([k,v])=>`<button class="wr-btn${activeCat===k?' primary':''}" data-tab="${k}">${v}</button>`).join('');
- openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(look,150)}</div><strong>나의 코디</strong><div class="wr-note">의상과 헤어는 nonemo 원본 이미지로 구성해요.</div></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
+ openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(look,150)}</div><strong>나의 코디</strong><div class="wr-note">앞머리·뒷머리를 별도 구매해 조합할 수 있어요. 판타지 변신은 전용 전체 스킨이에요.</div></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
  $('wrTabs').onclick=e=>{const btn=e.target.closest('[data-tab]');if(!btn)return;activeCat=btn.dataset.tab;openCloset()};renderItems();
 }
 function renderItems(){
  const grid=$('wrItems');if(!grid)return;
  grid.innerHTML=(catalog[activeCat]||[]).map(it=>{
- const owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id];
+ const owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id]||(activeCat==='frontHair'&&!!wallet.owned?.hair?.[it.id]);
  const selected=look[activeCat]===it.id;
  const picture=safeFile(it.file)?`<img src="${it.file}" alt="">`:'<div style="height:80px;padding-top:23px">미착용</div>';
  return `<button class="wr-item${selected?' active':''}" data-id="${escape(it.id)}">${picture}<strong>${escape(it.name)}</strong><span class="price">${selected?'장착 중':owned?'보유중':'🪙 '+Number(it.price)}</span></button>`;
  }).join('');
  grid.onclick=async e=>{const btn=e.target.closest('[data-id]');if(!btn||busy)return;
  const it=pick(activeCat,btn.dataset.id);if(!it)return;
- try{busy=true;let owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id];
+ try{busy=true;let owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id]||(activeCat==='frontHair'&&!!wallet.owned?.hair?.[it.id]);
  if(!owned){if(!confirm(`${it.name} 아이템을 ${it.price}코인에 구매할까요?`))return;wallet=await call('wrBuy',{cat:activeCat,id:it.id})}
- wallet=await call('wrEquip',{cat:activeCat,id:it.id});look={...DEFAULT,...wallet.look};renderWallet();renderItems();$('wrPreviewAvatar').innerHTML=avatar(look,150);
+ wallet=await call('wrEquip',{cat:activeCat,id:it.id});look={...DEFAULT,...wallet.look};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet();renderItems();$('wrPreviewAvatar').innerHTML=avatar(look,150);
  if(typeof db!=='undefined'&&db&&typeof currentRoomCode!=='undefined'&&currentRoomCode)db.ref(`rooms/${currentRoomCode}/players/${uid}/wrLook`).set(look).catch(()=>{});
  }catch(err){alert(err.message)}finally{busy=false}
  };
@@ -121,7 +125,7 @@ async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  await syncWallet();
  if(typeof renderProfileBtn==='function')renderProfileBtn();
  // Keep legacy profile as historical bookkeeping only; game scores and wardrobe use the Spark wallet.
- if(typeof db!=='undefined'&&db){economy.subscribe(v=>{wallet=v;look={...DEFAULT,...(wallet.look||{})};renderWallet()})}
+ if(typeof db!=='undefined'&&db){economy.subscribe(v=>{wallet=v;look={...DEFAULT,...(wallet.look||{})};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet()})}
  if(typeof lastRoomData!=='undefined'&&lastRoomData)renderRace(lastRoomData);
  let lastRoom='';setInterval(()=>{bindCurrentNickname().catch(console.warn);if(typeof currentRoomCode==='undefined'||!currentRoomCode||!db||typeof lastRoomData==='undefined'||!lastRoomData?.players?.[uid])return;const code=currentRoomCode;if(code!==lastRoom){lastRoom=code;db.ref('rooms/'+code+'/players/'+uid).update({wrLook:look,wrPet:wallet.petLook||{base:'🐶',wing:'wing:none'}}).catch(console.warn)}},2500);
 }

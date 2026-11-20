@@ -6,7 +6,7 @@
  if(root)root.WordRaceSparkEconomy=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const START=200,ENTRY=20,CATS=['skin','bottom','outfit','eyes','hair','glasses','beard'];
+ const START=200,ENTRY=20,CATS=['skin','bottom','outfit','eyes','hair','frontHair','backHair','glasses','beard','fantasy'];
  const copy=x=>JSON.parse(JSON.stringify(x));
  const own=(obj,key)=>Object.prototype.hasOwnProperty.call(obj||{},key);
  const arr=x=>Array.isArray(x)?x:Object.values(x||{});
@@ -50,7 +50,7 @@
    uid=resolvedUid(state,uid);
    state.users??={};
    if(!own(state.users,uid)){
-     const look={};for(const cat of CATS)look[cat]=catalog.categories[cat][0].id;
+     const look={};for(const cat of CATS){const options=catalog.categories?.[cat];if(options?.length)look[cat]=options[0].id;}
      state.users[uid]={coins:START,owned:{},look};
    }
    return state.users[uid];
@@ -122,7 +122,7 @@
  function mutateWallet(state,uid,catalog){return copy(ensure(state,uid,catalog))}
  function mutateBuy(state,uid,catalog,cat,id){
   const it=item(catalog,cat,id),u=ensure(state,uid,catalog),price=Number(it.price)||0;
-  if(price>0&&!u.owned?.[cat]?.[it.id]){
+  if(price>0&&!u.owned?.[cat]?.[it.id] && !(cat==='frontHair' && u.owned?.hair?.[it.id])){
    if(u.coins<price)throw Error('코인이 부족해요');u.coins-=price;
    u.owned??={};u.owned[cat]??={};u.owned[cat][it.id]=true;
   }
@@ -130,8 +130,8 @@
  }
  function mutateEquip(state,uid,catalog,cat,id){
   const it=item(catalog,cat,id),u=ensure(state,uid,catalog);
-  if(Number(it.price)>0&&!u.owned?.[cat]?.[it.id])throw Error('구매하지 않은 아이템이에요');
-  u.look??={};u.look[cat]=id;return copy(u);
+  if(Number(it.price)>0&&!u.owned?.[cat]?.[it.id] && !(cat==='frontHair' && u.owned?.hair?.[it.id]))throw Error('구매하지 않은 아이템이에요');
+  u.look??={};u.look[cat]=id; if(cat==='frontHair')u.look.hair=id;return copy(u);
  }
  function mutateBet(state,uid,catalog,code,round,target,now){
   const u=ensure(state,uid,catalog);state.rooms??={};state.rooms[code]??={};
