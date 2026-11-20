@@ -28,6 +28,16 @@ source += '''\nwindow.WR_PET_CATALOG = {
 # Match source Firebase initialization and replace hardcoded connection with new standalone Firebase config.
 source,count=re.subn(r'const firebaseConfig\s*=\s*\{.*?\};', 'const firebaseConfig = window.WORD_RACE_FIREBASE_CONFIG;',source,count=1,flags=re.S)
 if count!=1:sys.exit('Firebase config anchor changed')
+# 8-jamo rounds permit 3 hints; all other lengths stay at the original limit of 2.
+# Update every original reference, including UI messages and vote transaction guards.
+HINT_DECL = 'const MAX_HINTS_PER_ROUND = 2;'
+if source.count(HINT_DECL) != 1:
+    sys.exit('Original hint limit anchor changed; inspect the upstream game before publishing.')
+source = source.replace(HINT_DECL,
+    'function maxHintsForRound() { return Number(wordLength) === 8 ? 3 : 2; }')
+source = source.replace('MAX_HINTS_PER_ROUND', 'maxHintsForRound()')
+if source.count('maxHintsForRound()') < 4:
+    sys.exit('Not all original hint limit references found; check the original game.js.')
 source=source.replace('wordle_', 'wordrace_')
 # The original game used a locally random player ID. Replace it with Firebase Auth UID,
 # otherwise bets, wardrobe, spectators and game players refer to different IDs.
