@@ -7,7 +7,7 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',hair:'헤어',glasses:'안경',beard:'수염'};
 const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',hair:'',glasses:'none',beard:'none'};
 let catalog={},look={...DEFAULT},wallet={coins:0,owned:{},look:{}},uid='',activeCat='outfit',busy=false,economy=null;
-let lastSettling='',settleBusy=false;
+let lastSettling='',settleBusy=false,lastBoundNickname='',bindingNickname=false;
 const safeFile=f=>typeof f==='string'&&/^assets\/nonemo\/[a-zA-Z0-9_./-]+\.png$/.test(f)&&!f.includes('..');
 const pick=(cat,id)=> (catalog[cat]||[]).find(it=>it.id===id)||(catalog[cat]||[])[0];
 function avatar(customLook,size=48,bounce=false){
@@ -27,6 +27,7 @@ function injectUI(){
  modal.onclick=e=>{if(e.target===modal)closeModal()};
 }
 function renderRace(data){
+ if(data?.players?.[uid]?.nickname&&!lastBoundNickname){bindCurrentNickname().catch(console.warn)}
  const root=$('wrTrack');if(!root)return;
  if(!data?.players){root.innerHTML='<div class="wr-message">대결방 참가 후 레이스가 표시됩니다.</div>';return}
  let standings;
@@ -47,6 +48,23 @@ function renderWallet(){const el=$('wrCoins');if(el)el.textContent=`🪙 ${walle
 async function call(name,data={}){
  if(!economy)throw new Error('온라인 인증 후 이용할 수 있어요.');
  return economy.action(name,data);
+}
+function currentNickname(){
+  // The original todayword game keeps its nickname in myNick / wordrace_nick.
+  let nick='';
+  try {if(typeof myNick!=='undefined')nick=String(myNick||'').trim()}catch{}
+  if(!nick)try{nick=String(localStorage.getItem('wordrace_nick')||'').trim()}catch{}
+  return nick;
+}
+async function bindCurrentNickname(){
+  const nick=currentNickname();
+  if(!economy||!nick||bindingNickname||lastBoundNickname===nick)return;
+  bindingNickname=true;
+  try{
+    const result=await call('wrBindNickname',{nickname:nick});
+    lastBoundNickname=nick;wallet=result;look={...DEFAULT,...(wallet.look||{})};renderWallet();
+  }catch(err){console.warn('닉네임 아이템 동기화 실패:',err.message)}
+  finally{bindingNickname=false}
 }
 async function syncWallet(){try{wallet=await call('wrWallet');look={...DEFAULT,...wallet.look};renderWallet()}catch(e){console.warn('wallet:',e.message)}}
 async function openCloset(){
@@ -96,12 +114,13 @@ function initOffline(){injectUI();loadCatalog().catch(console.warn);}
 async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  economy=WordRaceSparkEconomy.createClient(firebase.database(),uid,{categories:catalog,petBases:window.WR_PET_CATALOG?.bases||[],petWings:window.WR_PET_CATALOG?.wings||[]},()=>Date.now()+(typeof serverOffset!=='undefined'?serverOffset:0));
  window.WordRacePets?.init(uid,economy);
+ await bindCurrentNickname();
  await syncWallet();
  if(typeof renderProfileBtn==='function')renderProfileBtn();
  // Keep legacy profile as historical bookkeeping only; game scores and wardrobe use the Spark wallet.
  if(typeof db!=='undefined'&&db){economy.subscribe(v=>{wallet=v;look={...DEFAULT,...(wallet.look||{})};renderWallet()})}
  if(typeof lastRoomData!=='undefined'&&lastRoomData)renderRace(lastRoomData);
- let lastRoom='';setInterval(()=>{if(typeof currentRoomCode==='undefined'||!currentRoomCode||!db||typeof lastRoomData==='undefined'||!lastRoomData?.players?.[uid])return;const code=currentRoomCode;if(code!==lastRoom){lastRoom=code;db.ref('rooms/'+code+'/players/'+uid).update({wrLook:look,wrPet:wallet.petLook||{base:'🐶',wing:'wing:none'}}).catch(console.warn)}},2500);
+ let lastRoom='';setInterval(()=>{bindCurrentNickname().catch(console.warn);if(typeof currentRoomCode==='undefined'||!currentRoomCode||!db||typeof lastRoomData==='undefined'||!lastRoomData?.players?.[uid])return;const code=currentRoomCode;if(code!==lastRoom){lastRoom=code;db.ref('rooms/'+code+'/players/'+uid).update({wrLook:look,wrPet:wallet.petLook||{base:'🐶',wing:'wing:none'}}).catch(console.warn)}},2500);
 }
 window.WR_BEFORE_NEXT_ROUND=beforeNextRound;
 function renderProfileBadge(){const btn=$('profileBtn');if(btn){btn.textContent='👗 코디 · 상점';btn.title='Word-Race 드레스룸';}}

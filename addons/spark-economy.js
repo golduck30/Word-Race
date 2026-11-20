@@ -10,7 +10,44 @@
  const copy=x=>JSON.parse(JSON.stringify(x));
  const own=(obj,key)=>Object.prototype.hasOwnProperty.call(obj||{},key);
  const arr=x=>Array.isArray(x)?x:Object.values(x||{});
+ // Friendly-room identity: all UID sessions using the same nickname share one wallet.
+ // Deliberately no password: identical nicknames share coins/items by design.
+ function nicknameKey(nick){
+   const clean=String(nick??'').trim().normalize('NFC');
+   if(!clean||clean.length>32||/[\u0000-\u001f\u007f]/.test(clean))throw Error('닉네임은 1~32자로 입력해 주세요');
+   return 'nick_'+encodeURIComponent(clean.toLowerCase()).replace(/\./g,'%2E');
+ }
+ function resolvedUid(state,uid){return state.uidAliases?.[uid]||uid}
+ function bindNickname(state,uid,nick,catalog){
+   const key=nicknameKey(nick);
+   state.uidAliases??={};state.users??={};
+   const prior=state.uidAliases[uid];
+   if(prior===key)return copy(ensure(state,uid,catalog));
+   const original=state.users[prior||uid];
+   const existed=!!state.users[key];
+   if(!existed){
+     state.users[key]=original?copy(original):undefined;
+     if(!state.users[key]){delete state.users[key];}
+   } else if(original && (prior||uid)!==key){
+     // Preserve purchased items on either device, but never duplicate starter coins.
+     const dest=state.users[key];
+     for(const [cat,items] of Object.entries(original.owned||{})){
+       dest.owned??={};dest.owned[cat]??={};
+       for(const [id,v] of Object.entries(items||{}))if(v)dest.owned[cat][id]=true;
+     }
+     for(const group of ['bases','wings']){
+       dest.petOwned??={};dest.petOwned[group]??={};
+       for(const [id,v] of Object.entries(original.petOwned?.[group]||{}))if(v)dest.petOwned[group][id]=true;
+     }
+     if(!dest.petMigrated&&original.petMigrated)dest.petMigrated=original.petMigrated;
+   }
+   // Keep historical wallets as a backup, but use the named wallet from now on.
+   state.uidAliases[uid]=key;
+   const u=ensure(state,uid,catalog);u.nickname=String(nick).trim();
+   return copy(u);
+ }
  function ensure(state,uid,catalog){
+   uid=resolvedUid(state,uid);
    state.users??={};
    if(!own(state.users,uid)){
      const look={};for(const cat of CATS)look[cat]=catalog.categories[cat][0].id;
@@ -139,7 +176,8 @@
    return response;
   }
   async function action(name,params={}){
-   if(name==='wrWallet')return transaction(s=>{const u=mutateWallet(s,uid,catalog);petDefaults(s.users[uid]);return copy(s.users[uid])});
+   if(name==='wrBindNickname')return transaction(s=>bindNickname(s,uid,params.nickname,catalog));
+   if(name==='wrWallet')return transaction(s=>{const u=mutateWallet(s,uid,catalog);petDefaults(s.users[resolvedUid(s,uid)]);return copy(s.users[resolvedUid(s,uid)])});
    if(name==='wrBuyPet')return transaction(s=>mutatePetBuy(s,uid,catalog,params.kind,params.id));
    if(name==='wrEquipPet')return transaction(s=>mutatePetEquip(s,uid,catalog,params.kind,params.id));
    if(name==='wrImportPet')return transaction(s=>mutatePetImport(s,uid,catalog,params));
@@ -160,7 +198,14 @@
    }
    throw Error('알 수 없는 요청입니다: '+name);
   }
-  return {action,subscribe(callback){const ref=db.ref('wrEconomy/state/users/'+uid);ref.on('value',s=>{if(s.exists())callback(s.val())});return ()=>ref.off('value')}};
+  return {action,subscribe(callback){
+   // Root subscription tracks alias changes on login from a different device.
+   // Friend-only Spark project: this is small but reads the full economy state.
+   const ref=stateRef;const handler=s=>{const state=s.val()||{};
+     const wallet=state.users?.[resolvedUid(state,uid)];if(wallet)callback(wallet);
+   };
+   ref.on('value',handler);return ()=>ref.off('value',handler);
+  }};
  }
- return {createClient,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,mutatePetBuy,mutatePetEquip,mutatePetImport,validateBet,ENTRY,START};
+ return {createClient,nicknameKey,bindNickname,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,mutatePetBuy,mutatePetEquip,mutatePetImport,validateBet,ENTRY,START};
 });
