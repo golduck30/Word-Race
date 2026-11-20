@@ -10,7 +10,44 @@
  const copy=x=>JSON.parse(JSON.stringify(x));
  const own=(obj,key)=>Object.prototype.hasOwnProperty.call(obj||{},key);
  const arr=x=>Array.isArray(x)?x:Object.values(x||{});
+ // Friendly-room identity: all UID sessions using the same nickname share one wallet.
+ // Deliberately no password: identical nicknames share coins/items by design.
+ function nicknameKey(nick){
+   const clean=String(nick??'').trim().normalize('NFC');
+   if(!clean||clean.length>32||/[\u0000-\u001f\u007f]/.test(clean))throw Error('닉네임은 1~32자로 입력해 주세요');
+   return 'nick_'+encodeURIComponent(clean.toLowerCase()).replace(/\./g,'%2E');
+ }
+ function resolvedUid(state,uid){return state.uidAliases?.[uid]||uid}
+ function bindNickname(state,uid,nick,catalog){
+   const key=nicknameKey(nick);
+   state.uidAliases??={};state.users??={};
+   const prior=state.uidAliases[uid];
+   if(prior===key)return copy(ensure(state,uid,catalog));
+   const original=state.users[prior||uid];
+   const existed=!!state.users[key];
+   if(!existed){
+     state.users[key]=original?copy(original):undefined;
+     if(!state.users[key]){delete state.users[key];}
+   } else if(original && (prior||uid)!==key){
+     // Preserve purchased items on either device, but never duplicate starter coins.
+     const dest=state.users[key];
+     for(const [cat,items] of Object.entries(original.owned||{})){
+       dest.owned??={};dest.owned[cat]??={};
+       for(const [id,v] of Object.entries(items||{}))if(v)dest.owned[cat][id]=true;
+     }
+     for(const group of ['bases','wings']){
+       dest.petOwned??={};dest.petOwned[group]??={};
+       for(const [id,v] of Object.entries(original.petOwned?.[group]||{}))if(v)dest.petOwned[group][id]=true;
+     }
+     if(!dest.petMigrated&&original.petMigrated)dest.petMigrated=original.petMigrated;
+   }
+   // Keep historical wallets as a backup, but use the named wallet from now on.
+   state.uidAliases[uid]=key;
+   const u=ensure(state,uid,catalog);u.nickname=String(nick).trim();
+   return copy(u);
+ }
  function ensure(state,uid,catalog){
+   uid=resolvedUid(state,uid);
    state.users??={};
    if(!own(state.users,uid)){
      const look={};for(const cat of CATS)look[cat]=catalog.categories[cat][0].id;
@@ -22,6 +59,43 @@
   if(!CATS.includes(cat))throw Error('잘못된 아이템 카테고리');
   const it=(catalog.categories[cat]||[]).find(it=>it.id===id);
   if(!it)throw Error('존재하지 않는 아이템');return it;
+ }
+ // Pet inventory is distinct from the nonemo outfit collection.
+ function petItem(catalog,kind,id){
+   if(!['base','wing'].includes(kind))throw Error('올바르지 않은 펫 종류');
+   const list=(kind==='base'?catalog.petBases:catalog.petWings)||[];
+   const found=list.find(x=>x.id===id);if(!found)throw Error('존재하지 않는 펫 아이템');return found;
+ }
+ function petDefaults(u){
+   u.petOwned??={bases:{},wings:{}};
+   u.petLook??={base:'🐶',wing:'wing:none'};
+   return u;
+ }
+ function mutatePetBuy(state,uid,catalog,kind,id){
+   const it=petItem(catalog,kind,id),u=petDefaults(ensure(state,uid,catalog));
+   const key=kind==='base'?'bases':'wings';
+   if(Number(it.price)>0&&!u.petOwned[key][id]){
+     if(u.coins<it.price)throw Error('코인이 부족해요');u.coins-=it.price;u.petOwned[key][id]=true;
+   }
+   return copy(u);
+ }
+ function mutatePetEquip(state,uid,catalog,kind,id){
+   const it=petItem(catalog,kind,id),u=petDefaults(ensure(state,uid,catalog));
+   const key=kind==='base'?'bases':'wings';
+   if(it.price>0&&!u.petOwned[key][id])throw Error('먼저 구매하거나 기존 todayword에서 가져와 주세요');
+   u.petLook[kind]=id;return copy(u);
+ }
+ function mutatePetImport(state,uid,catalog,params){
+   const u=petDefaults(ensure(state,uid,catalog));
+   if(u.petMigrated)throw Error('이미 기존 펫 기록을 가져온 계정입니다');
+   const nick=String(params.nick||'').trim();if(!nick||nick.length>32)throw Error('닉네임이 올바르지 않습니다');
+   const ids=Array.isArray(params.owned)?params.owned.filter(x=>typeof x==='string').slice(0,500):[];
+   const eq=params.eq||{};
+   for(const i of catalog.petBases||[])if(i.price===0||ids.includes(i.id))u.petOwned.bases[i.id]=true;
+   for(const i of catalog.petWings||[])if(i.price===0||ids.includes(i.id))u.petOwned.wings[i.id]=true;
+   if(u.petOwned.bases[eq.a])u.petLook.base=eq.a;
+   if(u.petOwned.wings[eq.wing])u.petLook.wing=eq.wing;
+   u.petMigrated={nick,at:Date.now()};return copy(u);
  }
  function scores(room){
   const out={};if(!room?.secretWord||!room?.players)return out;
@@ -102,7 +176,11 @@
    return response;
   }
   async function action(name,params={}){
-   if(name==='wrWallet')return transaction(s=>mutateWallet(s,uid,catalog));
+   if(name==='wrBindNickname')return transaction(s=>bindNickname(s,uid,params.nickname,catalog));
+   if(name==='wrWallet')return transaction(s=>{const u=mutateWallet(s,uid,catalog);petDefaults(s.users[resolvedUid(s,uid)]);return copy(s.users[resolvedUid(s,uid)])});
+   if(name==='wrBuyPet')return transaction(s=>mutatePetBuy(s,uid,catalog,params.kind,params.id));
+   if(name==='wrEquipPet')return transaction(s=>mutatePetEquip(s,uid,catalog,params.kind,params.id));
+   if(name==='wrImportPet')return transaction(s=>mutatePetImport(s,uid,catalog,params));
    if(name==='wrBuy')return transaction(s=>mutateBuy(s,uid,catalog,params.cat,params.id));
    if(name==='wrEquip')return transaction(s=>mutateEquip(s,uid,catalog,params.cat,params.id));
    if(name==='wrBet'){
@@ -120,7 +198,14 @@
    }
    throw Error('알 수 없는 요청입니다: '+name);
   }
-  return {action,subscribe(callback){const ref=db.ref('wrEconomy/state/users/'+uid);ref.on('value',s=>{if(s.exists())callback(s.val())});return ()=>ref.off('value')}};
+  return {action,subscribe(callback){
+   // Root subscription tracks alias changes on login from a different device.
+   // Friend-only Spark project: this is small but reads the full economy state.
+   const ref=stateRef;const handler=s=>{const state=s.val()||{};
+     const wallet=state.users?.[resolvedUid(state,uid)];if(wallet)callback(wallet);
+   };
+   ref.on('value',handler);return ()=>ref.off('value',handler);
+  }};
  }
- return {createClient,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,validateBet,ENTRY,START};
+ return {createClient,nicknameKey,bindNickname,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,mutatePetBuy,mutatePetEquip,mutatePetImport,validateBet,ENTRY,START};
 });
