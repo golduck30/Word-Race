@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오늘의 단어 - 대결 모드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK (Compat 버전) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- Hangul.js (한글 자모 조합 검증용) -->
+    <script src="https://unpkg.com/hangul-js@0.2.6/hangul.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; user-select: none; }
+        .tile {
+            width: 100%; aspect-ratio: 1 / 1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; font-weight: 700; border-radius: 0.5rem;
+            border: 2px solid #e2e8f0; background-color: #ffffff; color: #1e293b;
+            transition: all 0.15s ease-in-out;
+        }
+        @media (min-width: 400px) {
+            .tile { font-size: 1.4rem; }
+        }
+        .tile.correct { background-color: #4ade80 !important; border-color: #4ade80 !important; color: white !important; }
+        .tile.present { background-color: #facc15 !important; border-color: #facc15 !important; color: white !important; }
+        .tile.absent { background-color: #94a3b8 !important; border-color: #94a3b8 !important; color: white !important; }
+        .tile.filled { border-color: #64748b; transform: scale(1.03); }
+        .tile.maker-input { border-color: #f59e0b; background-color: #fef3c7; color: #78350f; }
+
+        .key {
+            background-color: #e2e8f0; color: #334155; font-weight: 600;
+            border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background-color 0.1s; font-size: 0.95rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .key:active { background-color: #cbd5e1; transform: scale(0.95); }
+        .key.correct { background-color: #4ade80 !important; color: white !important; }
+        .key.present { background-color: #facc15 !important; color: white !important; }
+        .key.absent { background-color: #94a3b8 !important; color: white !important; }
+        
+        .length-btn.active {
+            background-color: #059669 !important;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+
+        /* 글자 수별 타일 크기 (8칸까지 모바일에서도 들어가도록) */
+        .board-7 .tile { font-size: 1.15rem; }
+        .board-8 .tile { font-size: clamp(.85rem, 3.5vw, 1.15rem); border-width: 1.5px; }
+        .board-8 { gap: .35rem; }
+        .board-8 > div { gap: .35rem; }
+        @media (max-width: 390px) { #wordLengthSelector .length-btn { padding-left: .35rem; padding-right: .35rem; } }
+
+        /* 🥇 실시간 1등 닉네임 */
+        @keyframes leaderShine { to { background-position: 300% center; } }
+        @keyframes leaderGlow { 0%,100% { filter: drop-shadow(0 0 2px #fbbf24); } 50% { filter: drop-shadow(0 0 7px #f472b6); } }
+        .pname.leader-name {
+            font-weight: 900;
+            background-image: linear-gradient(90deg,#f59e0b,#ef4444,#ec4899,#8b5cf6,#06b6d4,#10b981,#f59e0b);
+            background-size: 300% auto;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: leaderShine 3s linear infinite, leaderGlow 2s ease-in-out infinite;
+        }
+        .pname.leader-name::before { content: '🥇 '; -webkit-text-fill-color: initial; }
+        .pname.leader-name::after { content: ' ✨'; -webkit-text-fill-color: initial; }
+        .leader-msg .chat-bubble {
+            background: linear-gradient(135deg,#fef3c7,#fce7f3) !important; color: #78350f !important;
+            border: 1px solid #fbbf24 !important; box-shadow: 0 0 0 2px rgba(251,191,36,.3), 0 4px 14px rgba(236,72,153,.25);
+        }
+        .leader-msg .av { box-shadow: 0 0 0 2px #fbbf24, 0 0 10px rgba(251,191,36,.7); }
+
+        /* 🐾 캐릭터 */
+        .av { position: relative; display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; line-height: 1; flex-shrink: 0; border: 1px solid rgba(0,0,0,.06); isolation: isolate; }
+        .av > span { position: absolute; line-height: 1; pointer-events: none; z-index: 2; }
+        .av > .av-base { position: relative; z-index: 1; }
+        .av-hat, .av-face, .av-neck { left: 50%; transform: translateX(-50%); }
+        .av-side { transform: none; }
+        .shop-item { border: 2px solid #e2e8f0; border-radius: 0.75rem; padding: 0.5rem 0.25rem; text-align: center; background: #fff; cursor: pointer; transition: all .1s; }
+        .shop-item:active { transform: scale(0.96); }
+        .shop-item.equipped { border-color: #10b981; background: #ecfdf5; }
+        /* ✨ 반짝이는(움직이는) 배경 */
+        @keyframes fxTwinkle { 0%,100% { opacity: .12; } 50% { opacity: 1; } }
+        @keyframes fxSweep { 0% { background-position: -150% 0; } 100% { background-position: 250% 0; } }
+        @keyframes fxShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .fx::before, .fx::after { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 0; }
+        .fx-glitter::before, .fx-stardust::before {
+            background-image: radial-gradient(circle at 18% 22%, #fff 0 1.2px, transparent 2.4px), radial-gradient(circle at 78% 18%, #fff 0 1px, transparent 2px),
+                radial-gradient(circle at 62% 72%, #fff 0 1.4px, transparent 2.6px), radial-gradient(circle at 26% 80%, #fff 0 1px, transparent 2px),
+                radial-gradient(circle at 90% 55%, #fff 0 1px, transparent 2px);
+            animation: fxTwinkle 1.8s ease-in-out infinite;
+        }
+        .fx-glitter::after, .fx-stardust::after {
+            background-image: radial-gradient(circle at 42% 10%, #fff 0 1px, transparent 2px), radial-gradient(circle at 8% 55%, #fff 0 1.3px, transparent 2.5px),
+                radial-gradient(circle at 86% 84%, #fff 0 1.2px, transparent 2.4px), radial-gradient(circle at 52% 48%, #fff 0 .8px, transparent 1.8px),
+                radial-gradient(circle at 70% 38%, #fff 0 1px, transparent 2px);
+            animation: fxTwinkle 1.8s ease-in-out infinite .9s;
+        }
+        .fx-holo, .fx-flow { background-size: 220% 220% !important; animation: fxShift 4s ease-in-out infinite; }
+        .fx-holo::after, .fx-goldshine::after, .fx-flow::after {
+            background-image: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.8) 50%, transparent 65%);
+            background-size: 250% 100%; animation: fxSweep 2.6s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) { .fx, .fx::before, .fx::after { animation: none !important; } }
+        @keyframes avBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .av-bounce { animation: avBounce 1.4s ease-in-out infinite; }
+        @keyframes popIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* 상점 확장: 타일 스킨과 승리 이펙트 */
+        #board.skin-macaron .tile:not(.correct):not(.present):not(.absent) { background:#fff0f7; border-color:#f9a8d4; color:#9d174d; box-shadow:0 3px 0 #fbcfe8; }
+        #board.skin-glass .tile:not(.correct):not(.present):not(.absent) { background:linear-gradient(140deg,#eefbff,#e0e7ff); border-color:#93c5fd; box-shadow:inset 0 1px 3px #fff, 0 3px 9px #bfdbfe; }
+        #board.skin-neon .tile:not(.correct):not(.present):not(.absent) { background:#142034; border-color:#22d3ee; color:#e0f2fe; box-shadow:0 0 8px #22d3ee88; }
+        #board.skin-gold .tile:not(.correct):not(.present):not(.absent) { background:linear-gradient(145deg,#fffbeb,#fcd34d); border-color:#d97706; color:#78350f; box-shadow:0 3px 0 #d97706; }
+        #board.skin-candy .tile:not(.correct):not(.present):not(.absent) { background:linear-gradient(130deg,#fdf2f8,#ddd6fe,#cffafe); border-color:#c084fc; color:#6b21a8; border-radius:1rem; }
+        #board.skin-royal .tile:not(.correct):not(.present):not(.absent) { background:linear-gradient(145deg,#312e81,#6d28d9); border-color:#a78bfa; color:white; box-shadow:0 3px 9px #6d28d955; }
+        #board.skin-mint .tile:not(.correct):not(.present):not(.absent) { background:#dcfce7; border-color:#34d399; color:#065f46; }
+        #board.skin-midnight .tile:not(.correct):not(.present):not(.absent) { background:#0f172a; border-color:#64748b; color:#f8fafc; }
+        #victoryEffect { position:fixed; inset:0; z-index:85; pointer-events:none; overflow:hidden; }
+        .victory-piece { position:absolute; left:50%; top:45%; font-size:clamp(1.3rem,5vw,2.5rem); opacity:0; animation:victoryBurst 1.7s cubic-bezier(.16,.8,.3,1) forwards; will-change:transform,opacity; }
+        .victory-banner { position:absolute; top:29%; left:50%; transform:translate(-50%,-50%); padding:12px 22px; white-space:nowrap; border-radius:18px; background:#0f172aee; color:white; font-weight:900; font-size:clamp(20px,5vw,32px); box-shadow:0 10px 40px #0005; animation:victoryText 1.7s ease-out forwards; }
+        @keyframes victoryBurst { 0% {opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0deg)} 15% {opacity:1} 75% {opacity:1} 100% {opacity:0;transform:translate(var(--vx),var(--vy)) scale(1.2) rotate(var(--rot))} }
+        @keyframes victoryText {0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%,75%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.08)}}
+        @media (prefers-reduced-motion: reduce) { .victory-piece {animation:none;display:none} .victory-banner {animation:none;opacity:1} }
+        .loot-result {animation:popIn .3s ease-out}
+
+        /* Deluxe tile skins: 판정 타일의 의미/색상은 그대로 유지 */
+        #board[class*="skin-"] .tile { position:relative; overflow:hidden; isolation:isolate; }
+        #board[class*="skin-"] .tile:not(.correct):not(.present):not(.absent)::after {
+            content:""; position:absolute;inset:-80%;pointer-events:none;z-index:-1;
+            background:linear-gradient(105deg,transparent 39%,rgba(255,255,255,.48) 49%,transparent 58%);
+            transform:translateX(-80%) rotate(13deg);animation:tileGleam 4.5s ease-in-out infinite;
+        }
+        #board.skin-prism .tile:not(.correct):not(.present):not(.absent) {background:linear-gradient(130deg,#f0abfc,#67e8f9,#fef08a,#f9a8d4);background-size:250% 250%;animation:tileAurora 5s ease-in-out infinite;border:2px solid #f0abfc;color:#581c87;box-shadow:inset 0 1px 2px #fff,0 4px 12px #d8b4fe,0 0 12px #c4b5fd88}
+        #board.skin-lava .tile:not(.correct):not(.present):not(.absent) {background:radial-gradient(circle at 35% 15%,#fb923c,#b91c1c 55%,#450a0a);border:2px solid #fdba74;color:white;text-shadow:0 2px 5px #450a0a;box-shadow:inset 0 -5px 10px #450a0a,0 0 14px #f9731688}
+        #board.skin-sakura .tile:not(.correct):not(.present):not(.absent) {background:linear-gradient(135deg,#fff1f2,#fbcfe8,#f9a8d4);border:2px solid #f472b6;color:#9d174d;border-radius:15px;box-shadow:inset 0 2px 4px #fff,0 4px 8px #f9a8d466}
+        #board.skin-emerald .tile:not(.correct):not(.present):not(.absent) {background:linear-gradient(135deg,#064e3b,#10b981,#6ee7b7);border:2px solid #a7f3d0;color:#fff;text-shadow:0 1px 4px #064e3b;box-shadow:inset 0 0 13px #6ee7b766,0 0 14px #10b98188}
+        #board.skin-cyber .tile:not(.correct):not(.present):not(.absent) {background:linear-gradient(140deg,#020617,#164e63,#581c87);border:2px solid #22d3ee;color:#e0f2fe;text-shadow:0 0 6px #67e8f9;box-shadow:0 0 0 1px #d946ef,0 0 14px #22d3ee88,inset 0 0 12px #d946ef66}
+        #board.skin-cosmos .tile:not(.correct):not(.present):not(.absent) {background:radial-gradient(circle at 25% 20%,#a78bfa,#4338ca 38%,#020617 85%);border:2px solid #c4b5fd;color:#fff;text-shadow:0 0 7px #fff;box-shadow:0 0 14px #818cf8,inset 0 0 16px #a78bfa88}
+        @keyframes tileGleam {0%,25%{transform:translateX(-80%) rotate(13deg)}55%,100%{transform:translateX(85%) rotate(13deg)}}
+        @keyframes tileAurora {0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+        /* 과장된 승리 연출: 레이어는 클릭을 차단하지 않음 */
+        .victory-flash {position:absolute;inset:0;background:radial-gradient(circle at 50% 44%,color-mix(in srgb,var(--victory-accent),transparent 50%),transparent 70%);animation:victoryFlash 1.2s ease-out forwards;}
+        .victory-ring {position:absolute;left:50%;top:45%;width:110px;height:110px;border-radius:50%;border:6px solid var(--victory-accent);box-shadow:0 0 24px var(--victory-accent),inset 0 0 15px var(--victory-accent);transform:translate(-50%,-50%) scale(.2);opacity:0;animation:victoryShock 1.5s ease-out forwards;}
+        .victory-banner-deluxe {top:27%;padding:17px 26px;border:2px solid var(--victory-accent);background:linear-gradient(140deg,#020617ef,#1e293bf2);box-shadow:0 0 22px var(--victory-accent),0 18px 50px #0008;display:flex;flex-direction:column;align-items:center;gap:4px;animation:victoryText 2.6s ease-out forwards;}
+        .victory-banner-deluxe small {font-size:10px;letter-spacing:.22em;color:var(--victory-accent);font-weight:900}
+        .victory-banner-deluxe strong {font-size:clamp(23px,5vw,38px);text-shadow:0 2px 13px var(--victory-accent)}
+        .victory-banner-deluxe em {font-size:12px;font-style:normal;color:#f8fafc;letter-spacing:.1em}
+        .victory-piece-deluxe {top:45%;animation-duration:2.6s;filter:drop-shadow(0 3px 5px #0007)}
+        .victory-spark {position:absolute;left:50%;top:45%;width:6px;height:22px;border-radius:6px;background:linear-gradient(#fff,var(--victory-accent));box-shadow:0 0 12px var(--victory-accent);opacity:0;animation:victorySpark 1.6s ease-out forwards;}
+        @keyframes victoryFlash {0%{opacity:0}13%{opacity:.85}100%{opacity:0}}
+        @keyframes victoryShock {0%{opacity:.9;transform:translate(-50%,-50%) scale(.15)}65%{opacity:.75}100%{opacity:0;transform:translate(-50%,-50%) scale(7)}}
+        @keyframes victorySpark {0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--vx)),calc(-50% + var(--vy))) scale(.1)}}
+        @media(prefers-reduced-motion:reduce){#board[class*="skin-"] .tile,#board[class*="skin-"] .tile::after{animation:none!important}.victory-flash,.victory-ring,.victory-piece,.victory-spark{display:none!important}.victory-banner-deluxe{animation:none!important;opacity:1}}
+    
+        /* 확장 상점: 닉네임 스타일 (상점/순위/채팅 공통) */
+        .pname {display:inline-block;max-width:100%;overflow-wrap:anywhere;}
+        .nick-rose {color:#db2777!important;text-shadow:0 1px 5px #f9a8d4;}
+        .nick-ocean {color:#0284c7!important;text-shadow:0 1px 6px #7dd3fc;}
+        .nick-gold {background:linear-gradient(105deg,#92400e,#f59e0b,#fef08a,#b45309);background-size:220% 100%;background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;animation:nickShimmer 3s linear infinite;}
+        .nick-neon {color:#22d3ee!important;text-shadow:0 0 4px #0891b2,0 0 12px #06b6d4,0 0 18px #67e8f9;}
+        .nick-rainbow {background:linear-gradient(95deg,#f43f5e,#f59e0b,#10b981,#3b82f6,#a855f7,#f43f5e);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;animation:nickShimmer 3s linear infinite;}
+        .nick-flame {color:#ea580c!important;text-shadow:0 0 5px #facc15,0 0 12px #f97316;animation:nickPulse 1.7s ease-in-out infinite;}
+        .nick-galaxy {background:linear-gradient(95deg,#7c3aed,#22d3ee,#e879f9,#7c3aed);background-size:220% 100%;background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 4px #a78bfa);animation:nickShimmer 4s linear infinite;}
+        @keyframes nickShimmer {to{background-position:220% 0}}
+        @keyframes nickPulse {50%{filter:brightness(1.5)}}
+        /* 날개 v3: SVG 이미지 전체를 배경으로, 캐릭터 본체는 위에 둔다. */
+        .av > .av-wing-art { position:absolute !important; left:50%; top:50%; width:205%; height:140%; transform:translate(-50%,-50%); z-index:0 !important; pointer-events:none; overflow:visible; }
+        .av-wing-art img { display:block; width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 1px 2px rgba(21,40,79,.23)); }
+        .av > .av-base {position:relative!important; z-index:2!important;}
+        .av > .av-hat,.av > .av-face,.av > .av-neck,.av > .av-side { z-index:3!important; }
+        .shop-item .av { isolation:isolate; }
+        @media (prefers-reduced-motion: reduce){.av-wing-art img{animation:none!important}}
+        .nick-gold { color:#b45309; text-shadow:0 0 0 rgba(0,0,0,0); }
+        .nick-ruby { color:#be123c; text-shadow:0 0 8px rgba(244,63,94,.25); }
+        .nick-sky { color:#0369a1; text-shadow:0 0 8px rgba(56,189,248,.22); }
+        .nick-forest { color:#047857; text-shadow:0 0 8px rgba(52,211,153,.22); }
+        .nick-gold,.nick-rainbow,.nick-flame,.nick-galaxy { font-weight:800; }
+        .nick-gold { background:linear-gradient(90deg,#b45309,#f59e0b,#fcd34d,#b45309); background-size:220% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:leaderShine 3s linear infinite; }
+        .nick-rainbow { background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981,#3b82f6,#8b5cf6,#ef4444); background-size:300% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:leaderShine 4s linear infinite; }
+        .nick-flame { background:linear-gradient(90deg,#7f1d1d,#ef4444,#f97316,#fde047,#ef4444); background-size:260% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:leaderShine 3.2s linear infinite; filter:drop-shadow(0 0 4px rgba(251,146,60,.35)); }
+        .nick-galaxy { background:linear-gradient(90deg,#c4b5fd,#60a5fa,#f0abfc,#a78bfa,#c4b5fd); background-size:300% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:leaderShine 4.5s linear infinite; filter:drop-shadow(0 0 4px rgba(192,132,252,.25)); }
+        @media (prefers-reduced-motion:reduce){.nick-gold,.nick-rainbow,.nick-flame,.nick-galaxy,.av-wingbox .wing-svg{animation:none!important}}
+    </style>
+    <link rel="stylesheet" href="victory-effects.css?v=4">
+    <link rel="stylesheet" href="wing-fantasy.css?v=4">
+</head>
+<body class="flex flex-col min-h-screen text-slate-800">
+
+    <!-- 상단 헤더 -->
+    <header class="flex flex-wrap items-center justify-between gap-y-2 px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
+        <div class="flex items-center space-x-2">
+            <span class="px-2 py-1 bg-emerald-500 text-white font-black rounded text-lg tracking-wider">단</span>
+            <h1 class="text-xl font-bold tracking-tight">오늘의 단어</h1>
+            <span id="gameModeBadge" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">혼자 하기</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <!-- 글자 수 선택 버튼 -->
+            <div id="wordLengthSelector" class="flex bg-slate-100 p-0.5 rounded-lg text-xs font-semibold text-slate-600">
+                <button onclick="setWordLength(5)" id="lenBtn-5" class="length-btn px-2 py-1 rounded-md transition active">5자</button>
+                <button onclick="setWordLength(6)" id="lenBtn-6" class="length-btn px-2 py-1 rounded-md transition">6자</button>
+                <button onclick="setWordLength(7)" id="lenBtn-7" class="length-btn px-2 py-1 rounded-md transition">7자</button>
+                <button onclick="setWordLength(8)" id="lenBtn-8" class="length-btn px-2 py-1 rounded-md transition">8자</button>
+            </div>
+            <button id="profileBtn" onclick="openShop()" class="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-bold text-amber-700 transition"></button>
+            <button onclick="openLobbyModal()" class="flex items-center space-x-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span id="roomBtnText">대결 방</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 게임 영역 -->
+    <main class="flex-1 flex flex-col items-center justify-between max-w-md w-full mx-auto p-4">
+        
+        <!-- 대결 정보 바 -->
+        <div id="multiplayerInfo" class="w-full bg-emerald-50 border border-emerald-200 rounded-xl p-3 mb-2 hidden">
+            <div class="flex justify-between items-center text-sm">
+                <div>방코드: <span id="dispRoomCode" class="font-bold text-emerald-700"></span></div>
+                <div>출제자: <span id="dispMaster" class="font-bold text-emerald-700"></span></div>
+            </div>
+            <div id="masterNotice" class="text-xs text-amber-700 mt-1 font-medium hidden">🎯 첫 번째 줄 타일에 자모를 입력하고 [문제 출제] 버튼을 누르세요!</div>
+            <div id="timeSelectorRow" class="hidden mt-2">
+                <p class="text-[11px] font-bold text-amber-700 mb-1">⏱ 진행 방식 <span class="font-medium text-slate-500">(타임어택은 출제하는 순간부터 시작돼요)</span></p>
+                <div id="timeSelector" class="grid grid-cols-2 gap-1.5"></div>
+            </div>
+            <div id="timerRow" class="hidden mt-2">
+                <div class="text-sm font-black" id="timerText"></div>
+                <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1"><div id="timerBar" class="h-full bg-emerald-500" style="width:100%; transition: width 1s linear;"></div></div>
+            </div>
+            <div id="dispHostRow" class="hidden text-sm mt-1">방장: <span id="dispHost" class="font-bold text-amber-600"></span></div>
+            <div id="roomActions" class="hidden mt-2">
+                <div class="flex flex-wrap gap-2">
+                    <button id="hostBtn" onclick="openHostModal()" class="hidden px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition">👑 방 관리</button>
+                    <button id="hintReqBtn" onclick="requestHint()" class="hidden px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition">💡 힌트 요청</button>
+                    <button id="leaveBtn" onclick="leaveRoom()" class="px-3 py-1.5 bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold rounded-lg transition">🚪 나가기</button>
+                    <button id="spectateBtn" onclick="toggleSpectate()" class="hidden px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg transition">👀 관전 전환</button>
+                </div>
+            </div>
+            <div id="hintBanner" onclick="reopenHintModal()" class="hidden mt-2 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-2.5 py-1.5 cursor-pointer"></div>
+            <div id="hintBar" class="hidden mt-2 flex items-center gap-1 flex-wrap"></div>
+            <div id="rankPanel" class="hidden mt-3 pt-2 border-t border-emerald-200">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-black text-emerald-800">🏆 실시간 순위 <span class="font-medium text-slate-400">(누적 점수)</span></span>
+                    <button onclick="openScoreHelp()" class="ml-auto mr-2 text-[11px] font-bold text-slate-500 underline">ℹ️ 점수 규칙</button>
+                    <button id="rankToggleBtn" onclick="toggleRankExpand()" class="hidden text-[11px] font-bold text-emerald-700"></button>
+                </div>
+                <div id="rankList" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- 메인 게임 보드 -->
+        <div id="board" class="grid gap-2 my-auto"></div>
+
+        <!-- 실시간 관전 대시보드 -->
+        <div id="spectatorDashboard" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 hidden max-h-48 overflow-y-auto">
+            <div id="forceBar" class="hidden mb-2"></div>
+            <div id="answerReveal" class="hidden mb-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                <p class="text-[11px] text-amber-700 font-bold mb-1">🔓 정답 공개 <span class="font-medium">(풀이를 마친 사람만 볼 수 있어요 · 다른 사람에겐 비밀! 🤫)</span></p>
+                <div id="answerTiles" class="flex justify-center gap-1"></div>
+                <p id="answerWord" class="text-sm font-black text-amber-800 mt-1"></p>
+            </div>
+            <p id="spectatorTitle" class="text-xs font-bold text-slate-700 mb-2">👁️ 실시간 참가자 현황 관전 보드</p>
+            <div id="spectatorChips" class="flex-wrap gap-1 mb-2" style="display:none"></div>
+            <div id="playerStatusList" class="space-y-2"></div>
+        </div>
+
+        <!-- 키보드 영역 -->
+        <div id="keyboard" class="w-full space-y-1.5 pb-2">
+            <div class="flex justify-center space-x-1.5">
+                <div class="key flex-1 py-3" onclick="handleKey('ㅂ')">ㅂ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅈ')">ㅈ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㄷ')">ㄷ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㄱ')">ㄱ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅅ')">ㅅ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅛ')">ㅛ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅕ')">ㅕ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅑ')">ㅑ</div>
+                <div class="key flex-1 py-3 bg-slate-300" onclick="handleDelete()"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"></path></svg></div>
+            </div>
+            <div class="flex justify-center space-x-1.5 px-2">
+                <div class="key flex-1 py-3" onclick="handleKey('ㅁ')">ㅁ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㄴ')">ㄴ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅇ')">ㅇ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㄹ')">ㄹ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅎ')">ㅎ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅗ')">ㅗ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅓ')">ㅓ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅏ')">ㅏ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅣ')">ㅣ</div>
+            </div>
+            <div class="flex justify-center space-x-1.5">
+                <div class="key flex-1 py-3" onclick="handleKey('ㅋ')">ㅋ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅌ')">ㅌ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅊ')">ㅊ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅍ')">ㅍ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅠ')">ㅠ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅜ')">ㅜ</div>
+                <div class="key flex-1 py-3" onclick="handleKey('ㅡ')">ㅡ</div>
+                <div id="submitBtn" class="key flex-[2] py-3 bg-emerald-600 text-white font-bold" onclick="handleSubmit()">제출</div>
+            </div>
+            <p class="hidden md:block text-center text-[11px] text-slate-400 pt-1">💻 PC에서는 키보드로도 입력할 수 있어요 (한글 자판 위치 · Enter 제출 · Backspace 삭제 · ㅐ/ㅔ 키는 ㅏㅣ/ㅓㅣ로 입력)</p>
+        </div>
+    </main>
+
+    <!-- 💬 실시간 채팅 플로팅 버튼 & 채팅창 (대결방 전용) -->
+    <div id="chatContainer" class="fixed bottom-4 right-4 z-40 hidden">
+        <!-- 채팅 열기/닫기 버튼 -->
+        <button id="chatToggleBtn" onclick="toggleChat()" class="relative flex items-center justify-center w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-lg transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            <span id="chatBadge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+        </button>
+
+        <!-- 채팅 패널 -->
+        <div id="chatPanel" class="hidden absolute bottom-14 right-0 w-72 sm:w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="height: 360px;">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-emerald-600 text-white">
+                <span class="font-bold text-sm">💬 대기실 & 대결 채팅</span>
+                <button onclick="toggleChat()" class="text-white/80 hover:text-white text-sm font-bold">✕</button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50 text-xs"></div>
+            <form onsubmit="sendChatMessage(event)" class="p-2 bg-white border-t border-slate-200 flex gap-1.5">
+                <input type="text" id="chatInput" maxlength="80" placeholder="메시지 입력 (최대 80자)" class="flex-1 px-3 py-1.5 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shrink-0">전송</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 대결방 모달 -->
+    <div id="lobbyModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl relative animate-scale">
+            <button onclick="closeLobbyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-xl font-bold mb-4 text-slate-800">친구와 함께 대결하기</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">내 닉네임</label>
+                    <input type="text" id="nicknameInput" placeholder="닉네임을 입력하세요" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button onclick="createRoom()" class="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm">새 대결방 만들기</button>
+                    <button onclick="showJoinInput()" class="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-sm">방 참여하기</button>
+                </div>
+                <div id="joinCodeArea" class="hidden pt-2 border-t border-slate-100 space-y-2">
+                    <input type="text" id="roomCodeInput" maxlength="6" placeholder="6자리 방 코드 입력" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm text-center tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="joinRoom(false)" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition">참여하기 (문제 풀기)</button>
+                    <button onclick="joinRoom(true)" class="w-full py-2 bg-slate-600 hover:bg-slate-700 text-white font-bold rounded-xl text-sm transition">👀 관전만 하기 (문제 안 풀어요)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 라운드 결과지 모달 -->
+    <div id="gameOverModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-xl">
+            <h3 id="gameOverTitle" class="text-2xl font-black mb-2 text-slate-800">라운드 결과</h3>
+            <div id="gameOverDesc" class="text-slate-600 text-sm mb-6"></div>
+            <div id="gameOverActionContainer"></div>
+        </div>
+    </div>
+
+    <!-- 방 관리 모달 (방장 전용) -->
+    <div id="hostModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-black text-slate-800">👑 방 관리</h3>
+                <button onclick="closeHostModal()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">닫기</button>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-3">출제자를 바꾸면 이번 라운드가 처음부터 다시 시작돼요. 강퇴하면 그 사람은 방에서 나가게 되고, 방 코드를 입력하면 다시 들어올 수 있어요.</p>
+            <div id="hostPlayerList" class="space-y-2 overflow-y-auto"></div>
+            <button onclick="hostResetScores()" class="mt-3 w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">🔄 모든 참가자 누적 점수 초기화</button>
+        </div>
+    </div>
+
+    <!-- 힌트 투표 모달 -->
+    <div id="hintModal" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl">
+            <div class="flex items-start justify-between">
+                <h3 class="text-lg font-black text-slate-800">💡 힌트 투표</h3>
+                <button onclick="dismissHintModal()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">닫기</button>
+            </div>
+            <p id="hintModalDesc" class="text-xs text-slate-500 mt-1 mb-3"></p>
+            <div id="hintVoteControls"></div>
+            <p id="hintModalStatus" class="text-[11px] text-slate-500 mt-3 text-center"></p>
+        </div>
+    </div>
+
+    <!-- 점수 규칙 모달 -->
+    <div id="scoreHelpModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl max-h-[88vh] overflow-y-auto text-left">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-black text-slate-800">📖 점수는 이렇게 계산돼요</h3>
+                <button onclick="closeScoreHelp()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">닫기</button>
+            </div>
+            <div class="space-y-3 text-sm text-slate-700">
+                <section>
+                    <p class="font-black text-emerald-700 mb-1">✅ 정답을 맞힌 참가자</p>
+                    <ul class="space-y-1.5 text-[13px]">
+                        <li>🎯 <b>기본 점수</b> — 몇 번째 시도에 맞혔는지에 따라<br><span class="text-slate-500">1번째 100 · 2번째 80 · 3번째 60 · 4번째 40 · 5번째 20점</span></li>
+                        <li>⚡ <b>스피드 보너스</b> — 가장 빨리 맞힌 순서대로<br><span class="text-slate-500">1등 +30 · 2등 +20 · 3등 +10점</span></li>
+                        <li>⏱ <b>타임어택 보너스</b> — 타임어택일 때 남은 시간이 많을수록 최대 +20점<br><span class="text-slate-500">(5글자 4분 · 6글자 6분 · 7글자 8분 · 8글자 10분)</span></li>
+                        <li>💡 <b>힌트 사용</b> — 이번 라운드에 공개된 힌트 1개당 −10점<br><span class="text-slate-500">(정답을 맞히면 최소 10점은 받아요)</span></li>
+                    </ul>
+                </section>
+                <section>
+                    <p class="font-black text-rose-600 mb-1">❌ 못 맞힌 참가자</p>
+                    <p class="text-[13px]">5번 안에 못 맞히거나 시간이 끝나면 그 라운드 점수는 0점이에요.</p>
+                </section>
+                <section>
+                    <p class="font-black text-amber-600 mb-1">🎯 출제자</p>
+                    <p class="text-[13px]">못 맞힌 참가자 1명당 +15점 (최대 +60점). 너무 쉽지도, 불가능하지도 않은 문제가 유리해요!</p>
+                </section>
+                <section>
+                    <p class="font-black text-indigo-600 mb-1">🏆 누적 순위 &amp; 코인</p>
+                    <p class="text-[13px]">라운드 점수는 방 안에서 계속 쌓여 실시간 순위가 돼요. 1등은 채팅창에서 반짝반짝 빛나요 ✨<br>라운드가 끝나면 이번 라운드 점수만큼 🪙 코인이 지급되고, 같은 닉네임(아이디)이면 방을 새로 만들어도 코인이 유지돼요.</p>
+                </section>
+                <section class="bg-slate-50 rounded-lg p-3 text-[13px]">
+                    <p class="font-black mb-1">📌 계산 예시</p>
+                    <p>3번째 시도에 정답(60) + 가장 빨리 맞힘(+30) + 남은 시간 보너스(+15) − 힌트 1개(−10) = <b class="text-emerald-700">95점</b></p>
+                </section>
+                <p class="text-[11px] text-slate-400">👀 관전자는 점수가 없어요. 도중에 관전으로 바꾸면 그 라운드 점수는 받을 수 없어요.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 코인 도박장 모달 -->
+    <div id="casinoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-slate-900 to-indigo-950 text-white rounded-2xl max-w-sm w-full p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-black">🎰 코인 도박장</h3>
+                <button onclick="closeCasino()" class="text-slate-300 hover:text-white text-sm font-semibold">닫기</button>
+            </div>
+            <p class="text-[11px] text-indigo-200 mb-3">게임 속 코인으로만 즐기는 미니게임이에요. 재미로만 즐기고, 잃어도 라운드에서 다시 벌 수 있어요 🙂</p>
+            <div class="flex items-center justify-between bg-white/10 rounded-xl px-3 py-2 mb-3">
+                <span class="text-xs text-indigo-200">내 코인</span>
+                <span id="casinoCoins" class="text-xl font-black text-amber-300"></span>
+            </div>
+            <div id="casinoTabs" class="grid grid-cols-3 gap-1.5 mb-3"></div>
+            <div class="mb-3">
+                <p class="text-xs text-indigo-200 mb-1">배팅 금액</p>
+                <div id="casinoBetChips" class="grid grid-cols-5 gap-1.5 mb-2"></div>
+                <input id="casinoBetInput" type="number" min="10" step="10" oninput="casinoBetFromInput()" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-bold">
+            </div>
+            <div id="casinoStage" class="bg-black/30 rounded-xl p-4 text-center min-h-[130px] flex flex-col items-center justify-center gap-3"></div>
+            <div id="casinoResult" class="text-center text-sm font-black min-h-[24px] mt-3"></div>
+            <div id="casinoPayout" class="text-[11px] text-indigo-300 mt-2 leading-relaxed"></div>
+            <div id="casinoLog" class="text-[11px] text-indigo-200/80 mt-3 space-y-0.5"></div>
+        </div>
+    </div>
+
+    <!-- 캐릭터 상점 모달 -->
+    <div id="shopModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl max-h-[88vh] flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-black text-slate-800">🛍️ 캐릭터 · 효과 · 타일 상점</h3>
+                <button onclick="closeShop()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">닫기</button>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl mb-3 shrink-0">
+                <div id="shopPreview" class="shrink-0 pt-6 pl-2 pr-8 pb-2"></div>
+                <div class="flex-1">
+                    <p class="text-xs text-slate-500">내 코인</p>
+                    <p id="shopCoins" class="text-2xl font-black text-amber-600"></p>
+                    <p class="text-[11px] text-slate-400 mt-1">라운드에서 얻은 점수가 그대로 코인이 돼요!</p>
+                    <p id="shopOwner" class="text-[11px] text-emerald-600 mt-0.5 break-all"></p>
+                    <button onclick="openLootBox()" class="mt-2 mr-1 px-3 py-1.5 bg-violet-700 hover:bg-violet-800 text-white text-xs font-black rounded-lg transition">🎁 선물 상자</button>
+                    <button onclick="openCasino()" class="mt-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-amber-300 text-xs font-black rounded-lg transition">🎰 코인 도박장</button>
+                </div>
+            </div>
+            <div id="shopTabs" class="grid grid-cols-3 sm:grid-cols-4 gap-1.5 mb-2 shrink-0"></div>
+            <div class="shrink-0 flex items-center justify-between gap-2 mb-1.5">
+                <p id="shopCatInfo" class="text-xs font-bold text-slate-500"></p>
+                <button onclick="clearAccessories()" class="shrink-0 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-bold rounded-md transition">✂️ 장식 전부 벗기</button>
+            </div>
+            <p id="shopFaceNote" class="hidden shrink-0 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mb-1.5"></p>
+            <div id="shopGrid" class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 flex-1 min-h-0 content-start"></div>
+        </div>
+    </div>
+
+
+    <!-- 랜덤 선물 상자: 아이템만 지급, 현금/환금 불가 -->
+    <div id="lootModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[70] hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl text-center">
+            <div class="flex justify-between items-center mb-3"><h3 class="font-black text-lg">🎁 랜덤 선물 상자</h3><button onclick="closeLootBox()" class="text-slate-500 font-bold">닫기 ✕</button></div>
+            <div class="text-6xl my-4">🎁</div>
+            <p class="text-sm text-slate-600 mb-2">미보유 타일 스킨·승리 이펙트 중 하나를 획득합니다.</p>
+            <p class="text-xs text-slate-500 mb-3">등급 확률: 일반 60% · 희귀 30% · 전설 10%<br>등급 내 미보유 아이템이 없으면 나머지 등급에서 다시 추첨합니다.</p>
+            <p id="lootCoins" class="text-sm font-bold text-amber-700 mb-2"></p>
+            <div id="lootResult" class="min-h-[62px] bg-violet-50 rounded-xl p-3 text-sm font-semibold text-violet-800 mb-3" aria-live="polite">상자 가격: 🪙 400</div>
+            <button id="lootOpenBtn" onclick="buyLootBox()" class="w-full py-3 bg-violet-700 hover:bg-violet-800 text-white font-black rounded-xl">🪙 400코인으로 열기</button>
+        </div>
+    </div>
+    <div id="victoryEffect" aria-hidden="true"></div>
+
+    <!-- 알림 토스트 -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 transition-opacity pointer-events-none z-50"></div>
+
+    <!-- 사전과 게임 로직 분리: 두 파일을 index.html과 같은 폴더에 업로드 -->
+    <script src="dictionary.js"></script>
+    <script src="victory-effects.js?v=4"></script>
+    <script src="game.js?v=4"></script>
+
+</body>
+</html>
