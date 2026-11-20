@@ -37,6 +37,7 @@ function renderRace(data){
  root.innerHTML=[...standings].reverse().map(s=>{
   let x=hi===lo?50:10+80*(s.total-lo)/(hi-lo);
   const player=data.players[s.uid]||{};
+  if(s.uid===uid && wallet?.petLook)player.wrPet=wallet.petLook;
   const i=standings.findIndex(p=>p.uid===s.uid);
   return `<div class="wr-runner" style="--x:${x};--z:${standings.length-i+2}" title="${escape(s.nickname)}"><div class="wr-name">${escape(s.nickname)}</div>${i===0&&hi>0?'<span class="wr-crown">👑</span>':''}${avatar(player.wrLook||(s.uid===uid?look:{}),window.innerWidth<550?40:58,true)}</div>`;
  }).join('');
@@ -50,9 +51,9 @@ async function call(name,data={}){
  return economy.action(name,data);
 }
 function currentNickname(){
-  // The original todayword game keeps its nickname in myNick / wordrace_nick.
+  // Original todayword uses myNickname and the wordrace_nick key after build.
   let nick='';
-  try {if(typeof myNick!=='undefined')nick=String(myNick||'').trim()}catch{}
+  try {if(typeof myNickname!=='undefined' && myNickname!=='플레이어')nick=String(myNickname||'').trim()}catch{}
   if(!nick)try{nick=String(localStorage.getItem('wordrace_nick')||'').trim()}catch{}
   return nick;
 }

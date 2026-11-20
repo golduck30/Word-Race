@@ -63,4 +63,8 @@ html=html.replace('<script src="game.js?v=4"></script>', '''<script src="firebas
     <script src="addons/bootstrap.js"></script>''')
 (DIST/'index.html').write_text(html,encoding='utf-8')
 assert (DIST/'dict/8.js').is_file(), '8 jamo dictionary missing'
+assert (DIST/'addons/pet-upgrade.js').is_file(), 'pet-upgrade.js not included'
+assert 'addons/pet-upgrade.js' in html, 'pet-upgrade.js not loaded by index'
+assert 'window.WR_PET_CATALOG' in source, 'pet catalog not built'
+assert 'WordRacePets' in (DIST/'addons/word-race.js').read_text(encoding='utf-8'), 'pet race integration missing'
 print('Word-Race dist ready. Source preserved: hints, host admin, maker rotation, dictionary, score rules.')

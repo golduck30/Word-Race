@@ -33,9 +33,16 @@ jobs:
           node --check dist/game.js
           node --check dist/addons/spark-economy.js
           node --check dist/addons/word-race.js
+          node --check dist/addons/pet-upgrade.js
+          node --check dist/addons/spark-economy.js
           node --check dist/addons/bootstrap.js
           node --check dist/solo.js
           node tests/spark-economy.test.js
+          node tests/pet-upgrade.test.js
+          node tests/nickname-save.test.js
+          grep -q 'addons/pet-upgrade.js' dist/index.html
+          grep -q 'WR_PET_CATALOG' dist/game.js
+          test -f dist/addons/pet-upgrade.js
           test -s dist/dict/8.js
           test -s dist/dict/5.js
           test -s dist/assets/nonemo/catalog.json
