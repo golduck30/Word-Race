@@ -8,6 +8,7 @@ const CATS={skin:'피부',bottom:'하의',outfit:'의상',eyes:'표정',frontHai
 const DEFAULT={skin:'',bottom:'',outfit:'',eyes:'',frontHair:'',backHair:'none',glasses:'none',beard:'none',fantasy:'none'};
 let catalog={},look={...DEFAULT},wallet={coins:0,owned:{},look:{}},uid='',activeCat='outfit',busy=false,economy=null;
 let lastSettling='',settleBusy=false,lastBoundNickname='',bindingNickname=false;
+let previewSelection=null;
 const safeFile=f=>typeof f==='string'&&/^assets\/nonemo\/[a-zA-Z0-9_./-]+\.png$/.test(f)&&!f.includes('..');
 const pick=(cat,id)=> (catalog[cat]||[]).find(it=>it.id===id)||(catalog[cat]||[])[0];
 function avatar(customLook,size=48,bounce=false){
@@ -74,26 +75,69 @@ async function bindCurrentNickname(){
   finally{bindingNickname=false}
 }
 async function syncWallet(){try{wallet=await call('wrWallet');look={...DEFAULT,...wallet.look};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet()}catch(e){console.warn('wallet:',e.message)}}
+function itemOwned(cat,it){
+ return Number(it.price)===0 || !!wallet.owned?.[cat]?.[it.id] || (cat==='frontHair' && !!wallet.owned?.hair?.[it.id]);
+}
+function previewLook(){
+ return previewSelection?{...look,[previewSelection.cat]:previewSelection.id}:look;
+}
+function redrawPreview(){
+ const view=$('wrPreviewAvatar');if(view)view.innerHTML=avatar(previewLook(),150);
+ const title=$('wrPreviewTitle'),hint=$('wrPreviewHint'),button=$('wrPreviewAction');
+ if(!previewSelection){
+   if(title)title.textContent='현재 장착 중인 코디';
+   if(hint)hint.textContent='아이템을 누르면 구입 전에 미리 입어볼 수 있어요.';
+   if(button){button.textContent='아이템을 선택해 주세요';button.disabled=true}
+   return;
+ }
+ const {cat,id}=previewSelection,it=pick(cat,id);if(!it)return;
+ const own=itemOwned(cat,it);
+ if(title)title.textContent=`미리보기: ${it.name}`;
+ if(hint)hint.textContent=own?'이미 보유한 아이템이에요.':'미리보기만으로 코인이 차감되지 않아요.';
+ if(button){button.disabled=busy||look[cat]===id;button.textContent=look[cat]===id?'이미 장착 중':own?'선택한 아이템 장착':`🪙 ${Number(it.price)}코인에 구매 후 장착`}
+}
 async function openCloset(){
- const tabs=Object.entries(CATS).map(([k,v])=>`<button class="wr-btn${activeCat===k?' primary':''}" data-tab="${k}">${v}</button>`).join('');
- openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(look,150)}</div><strong>나의 코디</strong><div class="wr-note">앞머리·뒷머리를 별도 구매해 조합할 수 있어요. 판타지 변신은 전용 전체 스킨이에요.</div></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
- $('wrTabs').onclick=e=>{const btn=e.target.closest('[data-tab]');if(!btn)return;activeCat=btn.dataset.tab;openCloset()};renderItems();
+ // The real catalog may still be downloading when the user opens the wardrobe.
+ if(!Object.keys(catalog).length){
+   try{await loadCatalog()}catch(e){openModal('드레스룸 오류',`<p class="wr-note">아이템 목록을 읽지 못했어요: ${escape(e.message)}</p><button class="wr-btn" id="wrCatalogRetry">다시 불러오기</button>`);$('wrCatalogRetry').onclick=openCloset;return;}
+ }
+ const tabs=Object.entries(CATS).map(([k,v])=>`<button class="wr-btn${activeCat===k?' primary':''}" data-tab="${k}">${v} (${(catalog[k]||[]).length})</button>`).join('');
+ openModal('👗 나의 드레스룸',`<div class="wr-closet"><div class="wr-preview"><div id="wrPreviewAvatar">${avatar(previewLook(),150)}</div><strong id="wrPreviewTitle"></strong><div class="wr-note" id="wrPreviewHint"></div><button id="wrPreviewAction" class="wr-btn primary" type="button"></button><button id="wrPreviewReset" class="wr-btn" type="button">미리보기 취소</button></div><div><div class="wr-tabs" id="wrTabs">${tabs}</div><div class="wr-grid" id="wrItems"></div></div></div>`);
+ $('wrTabs').onclick=e=>{const btn=e.target.closest('[data-tab]');if(!btn)return;activeCat=btn.dataset.tab;previewSelection=null;openCloset()};
+ $('wrPreviewReset').onclick=()=>{previewSelection=null;redrawPreview();renderItems()};
+ $('wrPreviewAction').onclick=async()=>{
+   if(!previewSelection||busy)return;
+   const {cat,id}=previewSelection,it=pick(cat,id);if(!it||look[cat]===id)return;
+   const owned=itemOwned(cat,it);
+   if(!owned&&!confirm(`${it.name}을(를) ${it.price}코인에 구매하고 장착할까요?`))return;
+   try{
+     busy=true;redrawPreview();
+     if(!owned)wallet=await call('wrBuy',{cat,id});
+     wallet=await call('wrEquip',{cat,id});
+     look={...DEFAULT,...wallet.look};
+     if(!wallet.look?.frontHair&&wallet.look?.hair)look.frontHair=wallet.look.hair;
+     renderWallet();
+     if(typeof db!=='undefined'&&db&&typeof currentRoomCode!=='undefined'&&currentRoomCode){
+       db.ref(`rooms/${currentRoomCode}/players/${uid}/wrLook`).set(look).catch(console.warn);
+     }
+     previewSelection=null;renderItems();redrawPreview();
+   }catch(err){alert('구매/장착 실패: '+err.message)}finally{busy=false;redrawPreview();}
+ };
+ renderItems();redrawPreview();
 }
 function renderItems(){
  const grid=$('wrItems');if(!grid)return;
- grid.innerHTML=(catalog[activeCat]||[]).map(it=>{
- const owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id]||(activeCat==='frontHair'&&!!wallet.owned?.hair?.[it.id]);
- const selected=look[activeCat]===it.id;
- const picture=safeFile(it.file)?`<img src="${it.file}" alt="">`:'<div style="height:80px;padding-top:23px">미착용</div>';
- return `<button class="wr-item${selected?' active':''}" data-id="${escape(it.id)}">${picture}<strong>${escape(it.name)}</strong><span class="price">${selected?'장착 중':owned?'보유중':'🪙 '+Number(it.price)}</span></button>`;
+ const items=catalog[activeCat]||[];
+ if(!items.length){grid.innerHTML='<p class="wr-note">이 카테고리의 아이템이 비어 있어요. catalog.json과 이미지 파일을 확인해 주세요.</p>';return;}
+ grid.innerHTML=items.map(it=>{
+  const owned=itemOwned(activeCat,it),equipped=look[activeCat]===it.id,selected=previewSelection?.cat===activeCat&&previewSelection?.id===it.id;
+  const picture=safeFile(it.file)?`<img src="${it.file}" alt="${escape(it.name)}" loading="lazy">`:'<div class="wr-empty-item">미착용</div>';
+  return `<button type="button" class="wr-item${equipped?' active':''}${selected?' wr-tryon':''}" data-id="${escape(it.id)}" aria-label="${escape(it.name)} 미리보기">${picture}<strong>${escape(it.name)}</strong><span class="price">${equipped?'장착 중':owned?'보유 · 미리보기':'🪙 '+Number(it.price)}</span></button>`;
  }).join('');
- grid.onclick=async e=>{const btn=e.target.closest('[data-id]');if(!btn||busy)return;
- const it=pick(activeCat,btn.dataset.id);if(!it)return;
- try{busy=true;let owned=Number(it.price)===0||!!wallet.owned?.[activeCat]?.[it.id]||(activeCat==='frontHair'&&!!wallet.owned?.hair?.[it.id]);
- if(!owned){if(!confirm(`${it.name} 아이템을 ${it.price}코인에 구매할까요?`))return;wallet=await call('wrBuy',{cat:activeCat,id:it.id})}
- wallet=await call('wrEquip',{cat:activeCat,id:it.id});look={...DEFAULT,...wallet.look};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet();renderItems();$('wrPreviewAvatar').innerHTML=avatar(look,150);
- if(typeof db!=='undefined'&&db&&typeof currentRoomCode!=='undefined'&&currentRoomCode)db.ref(`rooms/${currentRoomCode}/players/${uid}/wrLook`).set(look).catch(()=>{});
- }catch(err){alert(err.message)}finally{busy=false}
+ grid.onclick=e=>{
+  const btn=e.target.closest('[data-id]');if(!btn)return;
+  const item=items.find(x=>x.id===btn.dataset.id);if(!item)return;
+  previewSelection={cat:activeCat,id:item.id};renderItems();redrawPreview();
  };
 }
 async function openBets(){
@@ -116,7 +160,7 @@ async function beforeNextRound(){
  try{await call('wrSettle',{roomCode:room,roundId:data.round});await syncWallet();return true}
  catch(e){alert('이번 라운드 예측 정산을 확인할 수 없어 다음 라운드를 중지했습니다.\n'+e.message);return false}
 }
-async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json');if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
+async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261120b', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
 function initOffline(){injectUI();loadCatalog().catch(console.warn);}
 async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  economy=WordRaceSparkEconomy.createClient(firebase.database(),uid,{categories:catalog,petBases:window.WR_PET_CATALOG?.bases||[],petWings:window.WR_PET_CATALOG?.wings||[]},()=>Date.now()+(typeof serverOffset!=='undefined'?serverOffset:0));

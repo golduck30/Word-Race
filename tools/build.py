@@ -50,6 +50,13 @@ source=source.replace('function pushProfileRemote() {', 'function pushProfileRem
 source=source.replace('function awardCoinsOnce(key, amount) {','function awardCoinsOnce(key, amount) { return false; // Server wallet awards once per finished round')
 # Server settlement before original next-round score commit. Fail closed if settlement is not available.
 source=source.replace('function nextRound() {', 'async function nextRound() {\n            if (typeof window.WR_BEFORE_NEXT_ROUND === "function") {\n                const ok = await window.WR_BEFORE_NEXT_ROUND();\n                if (!ok) return;\n            }')
+# Word-Race scoring request: successful multiplayer guesses are 100 points;
+# old first/second/third speed score and guess bonuses no longer alter that result.
+# Original participation, time limits, hint voting and master bonus remain.
+score_anchor="out[x.u] = { total: Math.max(10, base + speed + time - hint), base, speed, time, hint, role: 'solver' };"
+if source.count(score_anchor)!=1:
+    sys.exit('Original multiplayer score anchor changed, inspect before deploying')
+source=source.replace(score_anchor, "out[x.u] = { total: 100, base: 100, speed: 0, time: 0, hint: 0, role: 'solver' };")
 # Original score update, hints, host and master rotation all continue executing unchanged.
 source=source.replace('function updateScoreboard(data) {','function updateScoreboard(data) {\n            if (window.WordRaceUI) window.WordRaceUI.renderRace(data);')
 # Redirect shop to the new nonemo dressing room. Old item code remains source-preserved but is not exposed.
@@ -65,11 +72,11 @@ html=html.replace('<title>오늘의 단어 - 대결 모드</title>','<title>Word
 html=html.replace('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>', '''<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 ''')
-html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css">\n</head>',1)
+html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css?v=20261120b">\n</head>',1)
 html=html.replace('<script src="game.js?v=4"></script>', '''<script src="firebase-config.js"></script>
-    <script src="addons/spark-economy.js"></script>
-    <script src="addons/pet-upgrade.js"></script>
-    <script src="addons/word-race.js"></script>
+    <script src="addons/spark-economy.js?v=20261120b"></script>
+    <script src="addons/pet-upgrade.js?v=20261120b"></script>
+    <script src="addons/word-race.js?v=20261120b"></script>
     <script src="addons/bootstrap.js"></script>''')
 (DIST/'index.html').write_text(html,encoding='utf-8')
 assert (DIST/'dict/8.js').is_file(), '8 jamo dictionary missing'

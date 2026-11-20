@@ -4,7 +4,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-  let economy=null, wallet=null, uid='', tab='base', busy=false;
+  let economy=null, wallet=null, uid='', tab='base', busy=false, petPreview=null;
   const cat=()=>window.WR_PET_CATALOG||{bases:[],wings:[]};
   const getItems=()=>tab==='base'?cat().bases:cat().wings;
   const petLook=()=>wallet?.petLook||{base:'🐶',wing:'wing:none'};
@@ -34,23 +34,38 @@
   async function openPetCloset(){
     if(!uid){alert('온라인 Firebase 인증 후 펫을 꾸밀 수 있어요.');return;}
     await refresh();
-    const items=getItems(); const own=wallet.petOwned||{};const chosen=petLook();
+    const items=getItems(),own=wallet.petOwned||{},chosen=petLook();
     const root=$('wrModalBody');if(!root){alert('드레스룸 화면을 찾지 못했습니다.');return}
     $('wrModalTitle').textContent='🐾 나의 펫 꾸미기';$('wrModal').classList.add('show');
-    root.innerHTML=`<section class="wr-pet-closet"><div class="wr-pet-showcase">${petMarkup(chosen,94)}<strong>나의 펫</strong><small>todayword 동물 + 날개</small><button id="wrPetMigrate" class="wr-btn primary">🔗 todayword 아이템 가져오기</button><div class="wr-note">기존 코인은 이전하지 않습니다. 같은 브라우저의 todayword 보유 아이템만 1회 이전합니다.</div></div><div><div class="wr-tabs"><button id="wrPetsBase" class="wr-btn ${tab==='base'?'primary':''}">🐾 동물</button><button id="wrPetsWing" class="wr-btn ${tab==='wing'?'primary':''}">🪽 날개</button></div><div class="wr-pet-grid">${items.map(it=>{
-      const owned=it.price===0||!!(tab==='base'?own.bases?.[it.id]:own.wings?.[it.id]);const equipped=tab==='base'?chosen.base===it.id:chosen.wing===it.id;
-      return `<button data-pet-id="${esc(it.id)}" class="wr-item ${equipped?'active':''}"><span class="wr-pet-item-image">${tab==='base'?esc(it.id):petMarkup({base:'🐶',wing:it.id},56)}</span><strong>${esc(it.name)}</strong><span class="price">${equipped?'장착중':owned?'보유중':`🪙 ${it.price}`}</span></button>`;
+    const visual=petPreview?{...chosen,[petPreview.kind==='base'?'base':'wing']:petPreview.id}:chosen;
+    root.innerHTML=`<section class="wr-pet-closet"><div class="wr-pet-showcase"><div id="wrPetVisual">${petMarkup(visual,94)}</div><strong id="wrPetPreviewName">${petPreview?'착용 미리보기':'나의 펫'}</strong><small>아이템을 눌러 미리 본 뒤 구매할 수 있어요.</small><button id="wrPetBuyEquip" class="wr-btn primary" ${petPreview?'':'disabled'}> ${petPreview?'선택한 아이템 구매/장착':'펫 아이템 선택'} </button><button id="wrPetPreviewCancel" class="wr-btn">미리보기 취소</button><button id="wrPetMigrate" class="wr-btn">🔗 todayword 아이템 가져오기</button><div class="wr-note">기존 코인은 이전하지 않습니다. 같은 브라우저의 todayword 보유 아이템만 1회 이전합니다.</div></div><div><div class="wr-tabs"><button id="wrPetsBase" class="wr-btn ${tab==='base'?'primary':''}">🐾 동물</button><button id="wrPetsWing" class="wr-btn ${tab==='wing'?'primary':''}">🪽 날개</button></div><div class="wr-pet-grid">${items.map(it=>{
+      const owned=Number(it.price)===0||!!(tab==='base'?own.bases?.[it.id]:own.wings?.[it.id]);const equipped=tab==='base'?chosen.base===it.id:chosen.wing===it.id;
+      const selected=petPreview?.kind===tab&&petPreview?.id===it.id;
+      return `<button data-pet-id="${esc(it.id)}" class="wr-item ${equipped?'active':''} ${selected?'wr-tryon':''}"><span class="wr-pet-item-image">${tab==='base'?esc(it.id):petMarkup({base:'🐶',wing:it.id},56)}</span><strong>${esc(it.name)}</strong><span class="price">${equipped?'장착중':owned?'보유중':`🪙 ${it.price}`}</span></button>`;
     }).join('')}</div></div></section>`;
-    $('wrPetsBase').onclick=()=>{tab='base';openPetCloset()};$('wrPetsWing').onclick=()=>{tab='wing';openPetCloset()};
+    $('wrPetsBase').onclick=()=>{tab='base';petPreview=null;openPetCloset()};$('wrPetsWing').onclick=()=>{tab='wing';petPreview=null;openPetCloset()};
+    $('wrPetPreviewCancel').onclick=()=>{petPreview=null;openPetCloset()};
     $('wrPetMigrate').onclick=startTransfer;
-    root.querySelector('.wr-pet-grid').onclick=async e=>{
-      const button=e.target.closest('[data-pet-id]');if(!button||busy)return;
-      const id=button.dataset.petId,it=items.find(x=>x.id===id);if(!it)return;
-      const owned=it.price===0||!!(tab==='base'?own.bases?.[id]:own.wings?.[id]);
-      try{busy=true;if(!owned){if(!confirm(`${it.name}을(를) ${it.price}코인에 구매할까요?`))return;await economy.action('wrBuyPet',{kind:tab,id})}
-        await economy.action('wrEquipPet',{kind:tab,id});await refresh();await publishPet();await openPetCloset();
-      }catch(err){alert(err.message)}finally{busy=false}
+    $('wrPetBuyEquip').onclick=async()=>{
+      if(!petPreview||busy)return;
+      const {kind,id}=petPreview,it=(kind==='base'?cat().bases:cat().wings).find(x=>x.id===id);if(!it)return;
+      const owned=Number(it.price)===0||!!(kind==='base'?wallet.petOwned?.bases?.[id]:wallet.petOwned?.wings?.[id]);
+      if(!owned&&!confirm(`${it.name}을(를) ${it.price}코인에 구매하고 장착할까요?`))return;
+      try{busy=true;if(!owned)await economy.action('wrBuyPet',{kind,id});await economy.action('wrEquipPet',{kind,id});await refresh();await publishPet();petPreview=null;await openPetCloset()}
+      catch(err){alert('펫 구매/장착 실패: '+err.message)}finally{busy=false}
     };
+    root.querySelector('.wr-pet-grid').onclick=e=>{
+      const button=e.target.closest('[data-pet-id]');if(!button)return;
+      const id=button.dataset.petId,it=items.find(x=>x.id===id);if(!it)return;
+      petPreview={kind:tab,id};
+      $('wrPetVisual').innerHTML=petMarkup({...chosen,[tab==='base'?'base':'wing']:id},94);
+      $('wrPetPreviewName').textContent=`미리보기: ${it.name}`;
+      const owned=Number(it.price)===0||!!(tab==='base'?own.bases?.[id]:own.wings?.[id]);
+      const action=$('wrPetBuyEquip');action.disabled=(tab==='base'?chosen.base===id:chosen.wing===id);
+      action.textContent=action.disabled?'이미 장착 중':owned?'이 아이템 장착':`🪙 ${it.price}코인에 구매 후 장착`;
+      root.querySelectorAll('[data-pet-id]').forEach(x=>x.classList.toggle('wr-tryon',x.dataset.petId===id));
+    };
+    if(petPreview){const it=items.find(x=>x.id===petPreview.id);if(it){const btn=root.querySelector(`[data-pet-id="${CSS.escape(it.id)}"]`);btn?.click()}}
   }
   async function publishPet(){
     if(typeof currentRoomCode!=='undefined'&&currentRoomCode&&typeof db!=='undefined'&&db&&uid){

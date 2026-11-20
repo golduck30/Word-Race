@@ -55,3 +55,17 @@ body > header{order:0;position:relative;z-index:2}
 body > .wr-shell{order:1}
 body > main{order:2}
 @media(max-width:550px){.wr-pet-wing-pair{inset:-6% -40%}}
+
+/* 2026-11: compact balanced pet wings (the original SVG is a single wing). */
+.wr-pet-wing-pair{inset:3% -25%;width:150%;height:90%;left:-25%;display:block;z-index:1;overflow:visible}
+.wr-pet-wing{position:absolute;top:10%;width:42%;height:76%;object-fit:contain;max-width:none;opacity:.97}
+.wr-pet-wing-left{left:1%;transform:scaleX(-1);transform-origin:50% 50%}
+.wr-pet-wing-right{right:1%;transform:none}
+.wr-pet-base{z-index:2}
+/* Item card is preview-only; purchase is an explicit second step. */
+.wr-item.wr-tryon{border:2px solid #5e42c8;box-shadow:0 0 0 2px #e8deff;background:#faf7ff}
+.wr-preview{position:sticky;top:0;align-self:start;padding:16px}
+.wr-preview .wr-note{text-align:center;padding:0 6px}
+.wr-preview #wrPreviewAction{min-height:41px;width:min(240px,96%)}
+.wr-empty-item{height:80px;display:flex;align-items:center;justify-content:center;color:#9886a5}
+@media(max-width:550px){.wr-pet-wing-pair{inset:3% -25%;width:150%;left:-25%}.wr-preview{position:relative}}
