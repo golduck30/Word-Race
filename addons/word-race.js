@@ -19,7 +19,9 @@ function injectUI(){
  if($('wrShell'))return;
  const shell=document.createElement('section');shell.id='wrShell';shell.className='wr-shell';
  shell.innerHTML=`<div class="wr-top"><div><div class="wr-title">🏁 WORD-RACE</div><div class="wr-tagline">오늘의 단어 · 원본 규칙 + 치비 코디 + 관전자 예측</div></div><div class="wr-actions"><a class="wr-btn primary" href="solo.html">혼자하기 · 보상 0</a><button class="wr-btn" id="wrClosetBtn">👗 드레스룸</button><button class="wr-btn" id="wrBetBtn">👀 우승자 예측</button><span id="wrCoins" class="wr-btn">🪙 코인 연결 중</span></div></div><div class="wr-race"><div class="wr-hill"></div><div class="wr-track" id="wrTrack"><div class="wr-message">방을 만들거나 참가하면 캐릭터들이 이곳에서 달려요.</div></div><span class="wr-roadlabel start">START</span><span class="wr-roadlabel end">LEADER 🏁</span></div>`;
- document.body.prepend(shell);
+ const originalHeader=document.querySelector('body > header');
+ if(originalHeader) originalHeader.insertAdjacentElement('afterend',shell);
+ else document.body.prepend(shell);
  const modal=document.createElement('div');modal.id='wrModal';modal.className='wr-modal';
  modal.innerHTML='<div class="wr-dialog"><div class="wr-head"><h2 id="wrModalTitle">드레스룸</h2><button id="wrClose" class="wr-btn">✕ 닫기</button></div><div id="wrModalBody"></div></div>';
  document.body.append(modal);
