@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "rooms": {"$room": {".read": "auth != null", ".write": "auth != null"}},
+    "wrEconomy": {
+      "state": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.hasChild('users')"
+      },
+      ".read": false,
+      ".write": false
+    },
+    "profiles": {".read": false, ".write": false},
+    ".read": false,
+    ".write": false
+  }
+}

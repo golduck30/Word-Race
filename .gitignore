@@ -1,0 +1,4 @@
+dist/
+__pycache__/
+.DS_Store
+# IMPORTANT: _todayword_source is intentionally tracked in this repository.
