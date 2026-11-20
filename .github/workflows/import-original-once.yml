@@ -1,0 +1,34 @@
+name: Import original todayword ONCE
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Refuse to overwrite previously imported original
+        run: |
+          if test -s _todayword_source/game.js; then
+            echo 'Original game is already stored in Word-Race. Import is intentionally one-time.'
+            exit 1
+          fi
+      - name: Fetch original todayword ONCE and store a local copy
+        run: |
+          git clone --depth 1 https://github.com/golduck30/todayword.git /tmp/wordrace-original
+          mkdir -p _todayword_source
+          rsync -a --exclude='.git' --exclude='.github' /tmp/wordrace-original/ _todayword_source/
+          git -C /tmp/wordrace-original rev-parse HEAD > _todayword_source/ORIGINAL_COMMIT.txt
+          test -s _todayword_source/game.js
+          test -s _todayword_source/index.html
+          for n in 5 6 7 8; do test -s "_todayword_source/dict/${n}.js"; done
+      - name: Commit the entire original into Word-Race
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f _todayword_source
+          git commit -m 'Vendor original todayword engine and 5-8 jamo dictionaries'
+          git push
