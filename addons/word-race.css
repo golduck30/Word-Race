@@ -81,3 +81,10 @@ body > main{order:2}
 .wr-preview #wrPreviewAvatar{min-height:215px;display:flex;align-items:center;justify-content:center}
 .wr-preview #wrPreviewAvatar .wr-avatar{--w:176px}
 @media(max-width:550px){.wr-preview #wrPreviewAvatar .wr-avatar{--w:148px}.wr-grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}}
+
+/* Front/back hair anti-alias seam: do not render back-hair crown underneath
+   the separate fringe. Keep the lower back-hair silhouette intact. */
+.wr-avatar .wr-layer-backHair {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, #000 43%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, #000 43%, #000 100%);
+}

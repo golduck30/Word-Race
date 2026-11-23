@@ -97,6 +97,42 @@
    if(u.petOwned.wings[eq.wing])u.petLook.wing=eq.wing;
    u.petMigrated={nick,at:Date.now()};return copy(u);
  }
+ // One-time full import of a local todayword nickname profile. Existing pet-only
+ // transfers do not block this migration. Coins are added once; unsupported
+ // purchased inventory IDs receive a 10-coin conversion each.
+ function mutateLegacyImport(state,uid,catalog,params){
+   const u=petDefaults(ensure(state,uid,catalog));
+   if(u.legacyImport?.completed)throw Error('todayword 전체 아이템 및 코인 이전은 이미 완료했어요.');
+   const nick=String(params.nick||'').trim();
+   if(!nick||nick.length>32)throw Error('이전할 닉네임을 확인해 주세요.');
+   const coins=Number(params.coins);
+   if(!Number.isSafeInteger(coins)||coins<0||coins>1000000000)throw Error('기존 코인 금액을 확인해 주세요.');
+   if(!Array.isArray(params.owned)||params.owned.length>1000)throw Error('보유 아이템 목록을 확인해 주세요.');
+   const ids=[...new Set(params.owned.filter(v=>typeof v==='string'&&v.length<100))];
+   const bases=new Set((catalog.petBases||[]).map(it=>it.id));
+   const wings=new Set((catalog.petWings||[]).map(it=>it.id));
+   const transferable=[],unsupported=[];
+   for(const id of ids){
+     if(bases.has(id)){u.petOwned.bases[id]=true;transferable.push(id);}
+     else if(wings.has(id)){u.petOwned.wings[id]=true;transferable.push(id);}
+     else unsupported.push(id);
+   }
+   // Some original equipped base items are free and not in the stored owned list.
+   const eq=params.eq&&typeof params.eq==='object'?params.eq:{};
+   for(const id of [eq.a,eq.wing]){
+     if(typeof id!=='string')continue;
+     if(bases.has(id))u.petOwned.bases[id]=true;
+     if(wings.has(id))u.petOwned.wings[id]=true;
+   }
+   if(bases.has(eq.a)&&u.petOwned.bases[eq.a])u.petLook.base=eq.a;
+   if(wings.has(eq.wing)&&u.petOwned.wings[eq.wing])u.petLook.wing=eq.wing;
+   const compensation=unsupported.length*10;
+   u.coins+=coins+compensation;
+   u.petMigrated??={nick,at:Date.now()};
+   const summary={nick,oldCoins:coins,convertedItems:unsupported.length,convertedCoins:compensation,transferredItems:transferable.length,credited:coins+compensation,completed:true,at:Date.now()};
+   u.legacyImport=summary;
+   return copy({wallet:u,summary});
+ }
  function scores(room){
   const out={};if(!room?.secretWord||!room?.players)return out;
   const secret=room.secretWord,hints=Object.keys(room.hintState?.revealed||{}).length;
@@ -181,6 +217,7 @@
    if(name==='wrBuyPet')return transaction(s=>mutatePetBuy(s,uid,catalog,params.kind,params.id));
    if(name==='wrEquipPet')return transaction(s=>mutatePetEquip(s,uid,catalog,params.kind,params.id));
    if(name==='wrImportPet')return transaction(s=>mutatePetImport(s,uid,catalog,params));
+   if(name==='wrImportLegacyAll')return transaction(s=>mutateLegacyImport(s,uid,catalog,params));
    if(name==='wrBuy')return transaction(s=>mutateBuy(s,uid,catalog,params.cat,params.id));
    if(name==='wrEquip')return transaction(s=>mutateEquip(s,uid,catalog,params.cat,params.id));
    if(name==='wrBet'){
@@ -207,5 +244,5 @@
    ref.on('value',handler);return ()=>ref.off('value',handler);
   }};
  }
- return {createClient,nicknameKey,bindNickname,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,mutatePetBuy,mutatePetEquip,mutatePetImport,validateBet,ENTRY,START};
+ return {createClient,nicknameKey,bindNickname,readyToSettle,scores,mutateBet,mutateSettle,mutateWallet,mutateBuy,mutateEquip,mutatePetBuy,mutatePetEquip,mutatePetImport,mutateLegacyImport,validateBet,ENTRY,START};
 });

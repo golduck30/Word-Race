@@ -38,7 +38,7 @@
     const root=$('wrModalBody');if(!root){alert('드레스룸 화면을 찾지 못했습니다.');return}
     $('wrModalTitle').textContent='🐾 나의 펫 꾸미기';$('wrModal').classList.add('show');
     const visual=petPreview?{...chosen,[petPreview.kind==='base'?'base':'wing']:petPreview.id}:chosen;
-    root.innerHTML=`<section class="wr-pet-closet"><div class="wr-pet-showcase"><div id="wrPetVisual">${petMarkup(visual,94)}</div><strong id="wrPetPreviewName">${petPreview?'착용 미리보기':'나의 펫'}</strong><small>아이템을 눌러 미리 본 뒤 구매할 수 있어요.</small><button id="wrPetBuyEquip" class="wr-btn primary" ${petPreview?'':'disabled'}> ${petPreview?'선택한 아이템 구매/장착':'펫 아이템 선택'} </button><button id="wrPetPreviewCancel" class="wr-btn">미리보기 취소</button><button id="wrPetMigrate" class="wr-btn">🔗 todayword 아이템 가져오기</button><div class="wr-note">기존 코인은 이전하지 않습니다. 같은 브라우저의 todayword 보유 아이템만 1회 이전합니다.</div></div><div><div class="wr-tabs"><button id="wrPetsBase" class="wr-btn ${tab==='base'?'primary':''}">🐾 동물</button><button id="wrPetsWing" class="wr-btn ${tab==='wing'?'primary':''}">🪽 날개</button></div><div class="wr-pet-grid">${items.map(it=>{
+    root.innerHTML=`<section class="wr-pet-closet"><div class="wr-pet-showcase"><div id="wrPetVisual">${petMarkup(visual,94)}</div><strong id="wrPetPreviewName">${petPreview?'착용 미리보기':'나의 펫'}</strong><small>아이템을 눌러 미리 본 뒤 구매할 수 있어요.</small><button id="wrPetBuyEquip" class="wr-btn primary" ${petPreview?'':'disabled'}> ${petPreview?'선택한 아이템 구매/장착':'펫 아이템 선택'} </button><button id="wrPetPreviewCancel" class="wr-btn">미리보기 취소</button><button id="wrPetMigrate" class="wr-btn">🔗 todayword 아이템·코인 전체 가져오기</button><div class="wr-note">기존 코인 전액과 펫·날개를 이전합니다. 이전 불가한 보유 아이템은 1개당 10코인을 지급해요. 같은 브라우저에서 1회만 가능합니다.</div></div><div><div class="wr-tabs"><button id="wrPetsBase" class="wr-btn ${tab==='base'?'primary':''}">🐾 동물</button><button id="wrPetsWing" class="wr-btn ${tab==='wing'?'primary':''}">🪽 날개</button></div><div class="wr-pet-grid">${items.map(it=>{
       const owned=Number(it.price)===0||!!(tab==='base'?own.bases?.[it.id]:own.wings?.[it.id]);const equipped=tab==='base'?chosen.base===it.id:chosen.wing===it.id;
       const selected=petPreview?.kind===tab&&petPreview?.id===it.id;
       return `<button data-pet-id="${esc(it.id)}" class="wr-item ${equipped?'active':''} ${selected?'wr-tryon':''}"><span class="wr-pet-item-image">${tab==='base'?esc(it.id):petMarkup({base:'🐶',wing:it.id},56)}</span><strong>${esc(it.name)}</strong><span class="price">${equipped?'장착중':owned?'보유중':`🪙 ${it.price}`}</span></button>`;
@@ -73,22 +73,33 @@
     }
   }
   async function startTransfer(){
-    if(wallet?.petMigrated){alert('이 Word-Race 계정은 todayword 펫 이전을 이미 완료했어.');return}
-    const suggestion=localStorage.getItem('wordle_nick')||'';
-    const nick=prompt('todayword에서 사용하던 닉네임을 입력해 줘.\n같은 브라우저의 저장 기록만 이전할 수 있어.',suggestion);
+    if(wallet?.legacyImport?.completed){
+      const s=wallet.legacyImport;
+      alert(`✅ 이미 todayword 전체 이전을 완료했어요.\n기존 코인: ${s.oldCoins}\n전환 보상: ${s.convertedCoins}코인 (${s.convertedItems}개)`);return;
+    }
+    const suggestion=localStorage.getItem('wordle_nick')||localStorage.getItem('wordrace_nick')||'';
+    const nick=prompt('todayword에서 사용하던 닉네임을 입력해 줘.\n기존 사이트에서 사용하던 같은 브라우저에서만 기록을 찾을 수 있어요.',suggestion);
     if(!nick?.trim())return;
-    // Both pages reside on https://golduck30.github.io, so they have the SAME localStorage origin.
     const key='wordle_profile::'+encodeURIComponent(nick.trim().toLowerCase()).replace(/\./g,'%2E');
     let old=null;
     try{old=JSON.parse(localStorage.getItem(key)||'null')}catch{}
-    if(!old||!Array.isArray(old.owned)||!old.eq){
-      alert('이 브라우저에 해당 닉네임의 todayword 저장 기록이 없어. 기존 todayword에서 같은 닉네임으로 들어간 뒤 다시 시도해 줘. 다른 기기에서만 이용했다면 자동 이전을 지원하지 않아.');return;
+    if(!old||!Array.isArray(old.owned)||!old.eq||!Number.isFinite(Number(old.coins))){
+      alert('이 브라우저에서 해당 닉네임의 todayword 보유 기록을 찾지 못했어.\n기존 todayword에 접속한 같은 브라우저에서 닉네임을 확인해 줘.');return;
     }
-    const owned=old.owned.filter(v=>typeof v==='string'&&v.length<80).slice(0,500);
-    if(!confirm(`${nick.trim()}의 보유 동물과 날개를 현재 Word-Race 계정으로 한 번만 가져올까?\n코인·다른 꾸미기 아이템은 이전하지 않아.`))return;
+    const catalog=cat();
+    const bases=new Set(catalog.bases.map(x=>x.id));
+    const wings=new Set(catalog.wings.map(x=>x.id));
+    const ids=[...new Set(old.owned.filter(v=>typeof v==='string'&&v.length<100))];
+    const covered=ids.filter(id=>bases.has(id)||wings.has(id));
+    const missing=ids.filter(id=>!bases.has(id)&&!wings.has(id));
+    const coins=Math.max(0,Math.floor(Number(old.coins)));
+    const refund=missing.length*10;
+    if(!confirm(`${nick.trim()}의 todayword 데이터를 1회 이전할까?\n\n기존 코인: ${coins.toLocaleString()}코인\n이전 가능한 펫·날개: ${covered.length}개\n이전 불가 아이템: ${missing.length}개 × 10코인 = ${refund.toLocaleString()}코인\n\n총 지급: ${(coins+refund).toLocaleString()}코인\n\n※ 기존 todayword 기록은 삭제되지 않아.`))return;
     try{
-      await economy.action('wrImportPet',{nick:nick.trim(),owned,eq:{a:old.eq.a,wing:old.eq.wing}});
-      await refresh();await publishPet();await openPetCloset();alert('펫 이전 완료!');
+      const result=await economy.action('wrImportLegacyAll',{nick:nick.trim(),coins,owned:ids,eq:{a:old.eq.a,wing:old.eq.wing}});
+      await refresh();await publishPet();petPreview=null;await openPetCloset();
+      const r=result.summary;
+      alert(`🎁 todayword 데이터 이전 완료!\n\n🪙 기존 코인: ${r.oldCoins.toLocaleString()}코인\n🐾 펫·날개: ${r.transferredItems}개 이전\n📦 이전 불가 아이템: ${r.convertedItems}개\n🎉 아이템 보상: ${r.convertedCoins.toLocaleString()}코인\n\n총 ${r.credited.toLocaleString()}코인을 지급했어!`);
     }catch(err){alert('이전 오류: '+err.message)}
   }
   // race DOM is re-rendered by the original Word-Race renderer; append after it finishes.
