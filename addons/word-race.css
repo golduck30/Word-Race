@@ -13,7 +13,7 @@ body{background:linear-gradient(145deg,#f5f0ff 0%,#f7fff8 55%,#fff8ed 100%)!impo
 .wr-track{position:absolute;inset:10px 16px 10px 16px}
 .wr-runner{position:absolute;bottom:38px;left:calc(var(--x)*1%);transform:translateX(-50%);transition:left 900ms cubic-bezier(.18,.82,.25,1);width:66px;text-align:center;z-index:var(--z)}
 .wr-avatar{position:relative;display:inline-block;width:var(--w);height:calc(var(--w)*1.2276);vertical-align:middle}
-.wr-avatar img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto;pointer-events:none}
+.wr-avatar canvas{position:absolute;inset:0;display:block;width:100%;height:100%;image-rendering:auto;pointer-events:none}
 .wr-runner .wr-avatar{filter:drop-shadow(0 3px 2px #46544c4d);animation:wrJog .45s alternate ease-in-out infinite}
 .wr-runner .wr-name{background:white;color:#4b3c68;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 6px;border-radius:14px;border:1px solid #e6d6ef;box-shadow:0 2px 5px #0001;max-width:90px;margin:auto}
 .wr-runner .wr-crown{position:absolute;top:-23px;left:50%;transform:translateX(-50%);font-size:20px}
@@ -63,7 +63,7 @@ body > main{order:2}
 .wr-item .wr-avatar{--w:76px;display:inline-block;vertical-align:middle;max-width:100%}
 .wr-item{min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
 .wr-item .wr-avatar{height:auto}
-.wr-item .wr-avatar img{display:block}
+.wr-item .wr-avatar canvas{display:block}
 .wr-item strong,.wr-item .price{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wr-preview #wrPreviewAvatar{min-height:215px;display:flex;align-items:center;justify-content:center}
 .wr-preview #wrPreviewAvatar .wr-avatar{--w:176px}
@@ -85,15 +85,8 @@ body > main{order:2}
 }
 .wr-pet-base{z-index:2}
 /* Original nonemo back hair has a full-width crown / long strands. Do not
-   apply the old large fade mask: it erased much of the visible hair.
-   Instead, trim only a tiny strip from the TOP edge and nudge the back hair
-   down slightly so the thin crown seam is hidden without losing the hairstyle. */
-.wr-avatar .wr-layer-backHair{
-  -webkit-mask-image:none!important;mask-image:none!important;
-  clip-path:inset(2.6% 0 0 0);
-  transform:translateY(2px);
-  transform-origin:center top;
-}
+   apply the old 24%-43% vertical fade: it erased much of the visible hair. */
+.wr-avatar .wr-layer-backHair{-webkit-mask-image:none!important;mask-image:none!important}
 /* For back-hair shopping show the source piece AND the fully layered outfit. */
 .wr-backhair-piece{display:flex;align-items:center;justify-content:center;min-height:85px;width:100%}
 .wr-backhair-piece img{display:block;width:82px;height:100px;object-fit:contain;max-width:100%}
@@ -184,9 +177,3 @@ body > main > #spectatorDashboard:not(.hidden) {margin-top:0!important;margin-bo
 .wr-casino .wc-payout,.wr-casino .wc-log{font-size:11px;color:#a5b4fc;line-height:1.7}
 .wr-casino .wc-log{border-top:1px solid #ffffff1c;padding-top:7px}
 @media(prefers-reduced-motion:reduce){.wr-casino *{animation:none!important}}
-
-/* 2026-11-23: Hair seam adjustment method 1 only.
-   The front-hair PNG gently overlaps the back hair by one display pixel.
-   Keep the complete shared 290x356 canvas and original sprite files unchanged. */
-/* 수정안 A: 앞머리 위치 원복. 1px 하향은 뒷머리 경계선을 더 드러내므로 제거. */
-.wr-avatar .wr-layer-frontHair{transform:none;transform-origin:center center;}

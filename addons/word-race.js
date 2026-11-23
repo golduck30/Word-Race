@@ -14,19 +14,71 @@ const pick=(cat,id)=> (catalog[cat]||[]).find(it=>it.id===id)||(catalog[cat]||[]
 // All nonemo layers are pre-aligned on one 290 x 356 transparent pixel canvas.
 // Each item is rendered at the same intrinsic size. Never crop/resize a single part.
 const LAYER_ORDER=['backHair','skin','bottom','outfit','eyes','frontHair','glasses','beard'];
+const AVATAR_W=290, AVATAR_H=356;
+const avatarImageCache=new Map();
+const avatarCompositeCache=new Map();
 function normalizedLook(raw={}){
   const v={...DEFAULT,...(raw||{})};
   if (!raw?.frontHair && raw?.hair) v.frontHair=raw.hair;
   return v;
 }
+function avatarSpec(customLook={}){
+  const L=normalizedLook(customLook);
+  return LAYER_ORDER.map(cat=>pick(cat,L[cat])?.file||'');
+}
+function loadAvatarImage(file){
+  if(!safeFile(file)) return Promise.resolve(null);
+  if(!avatarImageCache.has(file)){
+    avatarImageCache.set(file,new Promise(resolve=>{
+      const img=new Image();
+      img.decoding='async';
+      img.onload=()=>resolve(img);
+      img.onerror=()=>resolve(null);
+      img.src=file;
+    }));
+  }
+  return avatarImageCache.get(file);
+}
+async function getCompositeCanvas(customLook={}){
+  const files=avatarSpec(customLook);
+  const key=JSON.stringify(files);
+  if(avatarCompositeCache.has(key)) return avatarCompositeCache.get(key);
+  const promise=(async()=>{
+    const off=document.createElement('canvas');
+    off.width=AVATAR_W; off.height=AVATAR_H;
+    const ctx=off.getContext('2d');
+    const imgs=await Promise.all(files.map(loadAvatarImage));
+    imgs.forEach(img=>{ if(img) ctx.drawImage(img,0,0,AVATAR_W,AVATAR_H); });
+    return off;
+  })();
+  avatarCompositeCache.set(key,promise);
+  return promise;
+}
+async function paintAvatarCanvas(canvas, customLook={}){
+  const composed=await getCompositeCanvas(customLook);
+  if(!canvas.isConnected) return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=AVATAR_W; canvas.height=AVATAR_H;
+  ctx.clearRect(0,0,AVATAR_W,AVATAR_H);
+  ctx.drawImage(composed,0,0,AVATAR_W,AVATAR_H);
+}
+function hydrateAvatars(scope=document){
+  const nodes=[...scope.querySelectorAll('canvas.wr-avatar-canvas[data-look]')];
+  nodes.forEach(canvas=>{
+    let data={};
+    try{ data=JSON.parse(canvas.getAttribute('data-look')||'{}'); }catch{ return; }
+    const token=String(Date.now())+Math.random();
+    canvas.dataset.renderToken=token;
+    paintAvatarCanvas(canvas,data).then(()=>{
+      if(canvas.dataset.renderToken===token) canvas.dataset.hydrated='1';
+    }).catch(err=>console.warn('avatar composite failed:',err));
+  });
+}
 function avatar(customLook={},size=48,bounce=false){
   const L=normalizedLook(customLook);
   const w=Math.max(22,Math.min(210,Number(size)||48));
-  const images=LAYER_ORDER.map(cat=>{
-    const it=pick(cat,L[cat]);
-    return safeFile(it?.file)?`<img class="wr-layer wr-layer-${cat}" src="${it.file}" alt="" draggable="false" loading="lazy" width="290" height="356">`:'';
-  }).join('');
-  return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px" role="img" aria-label="커스터마이징 캐릭터">${images}</span>`;
+  const spec=escape(JSON.stringify(L));
+  return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px" role="img" aria-label="커스터마이징 캐릭터"><canvas class="wr-layer wr-avatar-canvas" width="${AVATAR_W}" height="${AVATAR_H}" data-look="${spec}"></canvas></span>`;
 }
 function injectUI(){
  if($('wrShell'))return;
@@ -56,10 +108,11 @@ function renderRace(data){
   const i=standings.findIndex(p=>p.uid===s.uid);
   return `<div class="wr-runner" style="--x:${x};--z:${standings.length-i+2}" title="${escape(s.nickname)}"><div class="wr-name">${escape(s.nickname)}</div>${i===0&&hi>0?'<span class="wr-crown">👑</span>':''}${avatar(player.wrLook||(s.uid===uid?look:{}),window.innerWidth<550?40:58,true)}</div>`;
  }).join('');
+ hydrateAvatars(root);
  window.WordRacePets?.attachRace(data);
 }
 const closeModal=()=>{$('wrModal')?.classList.remove('show')};
-function openModal(title,html){$('wrModalTitle').textContent=title;$('wrModalBody').innerHTML=html;$('wrModal').classList.add('show')}
+function openModal(title,html){$('wrModalTitle').textContent=title;$('wrModalBody').innerHTML=html;hydrateAvatars($('wrModalBody'));$('wrModal').classList.add('show')}
 function renderWallet(){const el=$('wrCoins');if(el)el.textContent=`🪙 ${wallet.coins??0} 코인`;}
 async function call(name,data={}){
  if(!economy)throw new Error('온라인 인증 후 이용할 수 있어요.');
@@ -95,6 +148,7 @@ function redrawPreview(){
    const part=(activeCat==='backHair')
      ? `<div class="wr-backhair-inspector"><small>뒷머리 원본 모양</small>${safeFile(chosen?.file)?`<img src="${chosen.file}" alt="선택한 뒷머리 원본" draggable="false">`:'<small>뒷머리 미착용</small>'}</div>` : '';
    view.innerHTML=avatar(previewLook(),176)+part;
+   hydrateAvatars(view);
  }
  const title=$('wrPreviewTitle'),hint=$('wrPreviewHint'),button=$('wrPreviewAction');
  if(!previewSelection){
@@ -149,6 +203,7 @@ function renderItems(){
    : avatar({...look,[activeCat]:it.id},82);
   return `<button type="button" class="wr-item${equipped?' active':''}${selected?' wr-tryon':''}" data-id="${escape(it.id)}" aria-label="${escape(it.name)} 미리보기">${picture}<strong>${escape(it.name)}</strong><span class="price">${equipped?'장착 중':owned?'보유 · 미리보기':'🪙 '+Number(it.price)}</span></button>`;
  }).join('');
+ hydrateAvatars(grid);
  grid.onclick=e=>{
   const btn=e.target.closest('[data-id]');if(!btn)return;
   const item=items.find(x=>x.id===btn.dataset.id);if(!item)return;
@@ -175,7 +230,7 @@ async function beforeNextRound(){
  try{await call('wrSettle',{roomCode:room,roundId:data.round});await syncWallet();return true}
  catch(e){alert('이번 라운드 예측 정산을 확인할 수 없어 다음 라운드를 중지했습니다.\n'+e.message);return false}
 }
-async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261123ko1', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
+async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261120c', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
 function initOffline(){injectUI();loadCatalog().catch(console.warn);}
 async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  economy=WordRaceSparkEconomy.createClient(firebase.database(),uid,{categories:catalog,petBases:window.WR_PET_CATALOG?.bases||[],petWings:window.WR_PET_CATALOG?.wings||[]},()=>Date.now()+(typeof serverOffset!=='undefined'?serverOffset:0));
@@ -202,5 +257,5 @@ function maybeSettle(data){
  call('wrSettle',{roomCode:code,roundId:data.round}).then(()=>{lastSettling=key;syncWallet()}).catch(err=>console.warn('자동 정산 보류:',err.message)).finally(()=>settleBusy=false);
 }
 const originalRace=renderRace;
-window.WordRaceUI={init,initOffline,avatar,renderRace(data){originalRace(data);maybeSettle(data)},openCloset,renderProfileBadge};
+window.WordRaceUI={init,initOffline,avatar,hydrateAvatars,renderRace(data){originalRace(data);maybeSettle(data)},openCloset,renderProfileBadge};
 })();
