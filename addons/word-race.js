@@ -230,7 +230,7 @@ async function beforeNextRound(){
  try{await call('wrSettle',{roomCode:room,roundId:data.round});await syncWallet();return true}
  catch(e){alert('이번 라운드 예측 정산을 확인할 수 없어 다음 라운드를 중지했습니다.\n'+e.message);return false}
 }
-async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261120c', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
+async function loadCatalog(){const r=await fetch('assets/nonemo/catalog.json?v=20261123kofix2', {cache:'no-store'});if(!r.ok)throw Error('nonemo 에셋 목록 없음');const json=await r.json();catalog=json.categories||{};for(const cat of Object.keys(CATS)){const a=catalog[cat]||[];if(!a.length)throw Error(`${cat} 에셋 누락`);DEFAULT[cat]=a[0].id}}
 function initOffline(){injectUI();loadCatalog().catch(console.warn);}
 async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  economy=WordRaceSparkEconomy.createClient(firebase.database(),uid,{categories:catalog,petBases:window.WR_PET_CATALOG?.bases||[],petWings:window.WR_PET_CATALOG?.wings||[]},()=>Date.now()+(typeof serverOffset!=='undefined'?serverOffset:0));

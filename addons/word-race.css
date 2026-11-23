@@ -177,3 +177,6 @@ body > main > #spectatorDashboard:not(.hidden) {margin-top:0!important;margin-bo
 .wr-casino .wc-payout,.wr-casino .wc-log{font-size:11px;color:#a5b4fc;line-height:1.7}
 .wr-casino .wc-log{border-top:1px solid #ffffff1c;padding-top:7px}
 @media(prefers-reduced-motion:reduce){.wr-casino *{animation:none!important}}
+
+/* Pet neck accessory: center under animal face, not off to the left. */
+.wr-pet-neck{position:absolute;z-index:4;top:77%;left:50%;transform:translate(-50%,-50%);font-size:calc(var(--pet-size)*.27);line-height:1;pointer-events:none;white-space:nowrap;text-align:center}

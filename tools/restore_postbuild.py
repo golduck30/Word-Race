@@ -86,7 +86,7 @@ css='''\n/* Restore original multiplayer utility controls + pet additional slots
 .wr-legacy-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 0;padding:9px;background:#fff;border:1px solid #eee5fb;border-radius:14px}
 .wr-status-line{display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px solid #eee}
 .wr-arcade{display:grid;gap:14px}.wr-arcade input,.wr-arcade select{padding:8px;border:1px solid #ded1fa;border-radius:9px;max-width:100%}
-.wr-pet-neck{position:absolute;z-index:4;top:60%;left:38%;font-size:calc(var(--pet-size)*.26);line-height:1;pointer-events:none}
+.wr-pet-neck{position:absolute;z-index:4;top:77%;left:50%;transform:translate(-50%,-50%);font-size:calc(var(--pet-size)*.27);line-height:1;pointer-events:none;white-space:nowrap;text-align:center}
 .wr-pet-hand{position:absolute;z-index:4;top:54%;right:-18%;font-size:calc(var(--pet-size)*.34);line-height:1;pointer-events:none}
 .wr-pet-extra-view .wr-pet{--pet-size:105px}
 '''

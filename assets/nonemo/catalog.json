@@ -220,451 +220,451 @@
     "eyes": [
       {
         "id": "smile",
-        "name": "smile",
+        "name": "미소",
         "file": "assets/nonemo/eyes/smile.png",
         "price": 0
       },
       {
         "id": "angry",
-        "name": "angry",
+        "name": "화난 표정",
         "file": "assets/nonemo/eyes/angry.png",
         "price": 300
       },
       {
         "id": "crying",
-        "name": "crying",
+        "name": "우는 표정",
         "file": "assets/nonemo/eyes/crying.png",
         "price": 300
       },
       {
         "id": "cute",
-        "name": "cute",
+        "name": "귀여운 표정",
         "file": "assets/nonemo/eyes/cute.png",
         "price": 0
       },
       {
         "id": "dead",
-        "name": "dead",
+        "name": "기절한 표정",
         "file": "assets/nonemo/eyes/dead.png",
         "price": 300
       },
       {
         "id": "evil",
-        "name": "evil",
+        "name": "장난스러운 표정",
         "file": "assets/nonemo/eyes/evil.png",
         "price": 300
       },
       {
         "id": "fright",
-        "name": "fright",
+        "name": "놀란 표정",
         "file": "assets/nonemo/eyes/fright.png",
         "price": 300
       },
       {
         "id": "gloating",
-        "name": "gloating",
+        "name": "뿌듯한 표정",
         "file": "assets/nonemo/eyes/gloating.png",
         "price": 300
       },
       {
         "id": "laughs",
-        "name": "laughs",
+        "name": "활짝 웃는 표정",
         "file": "assets/nonemo/eyes/laughs.png",
         "price": 300
       },
       {
         "id": "love",
-        "name": "love",
+        "name": "사랑에 빠진 표정",
         "file": "assets/nonemo/eyes/love.png",
         "price": 300
       },
       {
         "id": "melancholic",
-        "name": "melancholic",
+        "name": "우울한 표정",
         "file": "assets/nonemo/eyes/melancholic.png",
         "price": 300
       },
       {
         "id": "sad",
-        "name": "sad",
+        "name": "슬픈 표정",
         "file": "assets/nonemo/eyes/sad.png",
         "price": 300
       },
       {
         "id": "sleepy",
-        "name": "sleepy",
+        "name": "졸린 표정",
         "file": "assets/nonemo/eyes/sleepy.png",
         "price": 300
       },
       {
         "id": "tempered",
-        "name": "tempered",
+        "name": "새침한 표정",
         "file": "assets/nonemo/eyes/tempered.png",
         "price": 300
       },
       {
         "id": "willing",
-        "name": "willing",
+        "name": "의욕적인 표정",
         "file": "assets/nonemo/eyes/willing.png",
         "price": 300
       },
       {
         "id": "custom_default_open_mouth",
-        "name": "눈 default · 입 open_mouth",
+        "name": "기본 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_default_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_default_sad",
-        "name": "눈 default · 입 sad",
+        "name": "기본 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_default_sad.png",
         "price": 450
       },
       {
         "id": "custom_default_saliva",
-        "name": "눈 default · 입 saliva",
+        "name": "기본 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_default_saliva.png",
         "price": 450
       },
       {
         "id": "custom_default_smile",
-        "name": "눈 default · 입 smile",
+        "name": "기본 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_default_smile.png",
         "price": 450
       },
       {
         "id": "custom_default_teeth",
-        "name": "눈 default · 입 teeth",
+        "name": "기본 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_default_teeth.png",
         "price": 450
       },
       {
         "id": "custom_default_teeth_smile",
-        "name": "눈 default · 입 teeth_smile",
+        "name": "기본 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_default_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_closed_open_mouth",
-        "name": "눈 closed · 입 open_mouth",
+        "name": "감은 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_closed_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_closed_sad",
-        "name": "눈 closed · 입 sad",
+        "name": "감은 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_closed_sad.png",
         "price": 450
       },
       {
         "id": "custom_closed_saliva",
-        "name": "눈 closed · 입 saliva",
+        "name": "감은 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_closed_saliva.png",
         "price": 450
       },
       {
         "id": "custom_closed_smile",
-        "name": "눈 closed · 입 smile",
+        "name": "감은 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_closed_smile.png",
         "price": 450
       },
       {
         "id": "custom_closed_teeth",
-        "name": "눈 closed · 입 teeth",
+        "name": "감은 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_closed_teeth.png",
         "price": 450
       },
       {
         "id": "custom_closed_teeth_smile",
-        "name": "눈 closed · 입 teeth_smile",
+        "name": "감은 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_closed_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_crying_open_mouth",
-        "name": "눈 crying · 입 open_mouth",
+        "name": "눈물 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_crying_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_crying_sad",
-        "name": "눈 crying · 입 sad",
+        "name": "눈물 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_crying_sad.png",
         "price": 450
       },
       {
         "id": "custom_crying_saliva",
-        "name": "눈 crying · 입 saliva",
+        "name": "눈물 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_crying_saliva.png",
         "price": 450
       },
       {
         "id": "custom_crying_smile",
-        "name": "눈 crying · 입 smile",
+        "name": "눈물 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_crying_smile.png",
         "price": 450
       },
       {
         "id": "custom_crying_teeth",
-        "name": "눈 crying · 입 teeth",
+        "name": "눈물 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_crying_teeth.png",
         "price": 450
       },
       {
         "id": "custom_crying_teeth_smile",
-        "name": "눈 crying · 입 teeth_smile",
+        "name": "눈물 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_crying_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_cute_open_mouth",
-        "name": "눈 cute · 입 open_mouth",
+        "name": "귀여운 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_cute_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_cute_sad",
-        "name": "눈 cute · 입 sad",
+        "name": "귀여운 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_cute_sad.png",
         "price": 450
       },
       {
         "id": "custom_cute_saliva",
-        "name": "눈 cute · 입 saliva",
+        "name": "귀여운 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_cute_saliva.png",
         "price": 450
       },
       {
         "id": "custom_cute_smile",
-        "name": "눈 cute · 입 smile",
+        "name": "귀여운 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_cute_smile.png",
         "price": 450
       },
       {
         "id": "custom_cute_teeth",
-        "name": "눈 cute · 입 teeth",
+        "name": "귀여운 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_cute_teeth.png",
         "price": 450
       },
       {
         "id": "custom_cute_teeth_smile",
-        "name": "눈 cute · 입 teeth_smile",
+        "name": "귀여운 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_cute_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_dead_open_mouth",
-        "name": "눈 dead · 입 open_mouth",
+        "name": "기절 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_dead_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_dead_sad",
-        "name": "눈 dead · 입 sad",
+        "name": "기절 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_dead_sad.png",
         "price": 450
       },
       {
         "id": "custom_dead_saliva",
-        "name": "눈 dead · 입 saliva",
+        "name": "기절 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_dead_saliva.png",
         "price": 450
       },
       {
         "id": "custom_dead_smile",
-        "name": "눈 dead · 입 smile",
+        "name": "기절 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_dead_smile.png",
         "price": 450
       },
       {
         "id": "custom_dead_teeth",
-        "name": "눈 dead · 입 teeth",
+        "name": "기절 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_dead_teeth.png",
         "price": 450
       },
       {
         "id": "custom_dead_teeth_smile",
-        "name": "눈 dead · 입 teeth_smile",
+        "name": "기절 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_dead_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_evil_open_mouth",
-        "name": "눈 evil · 입 open_mouth",
+        "name": "장난 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_evil_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_evil_sad",
-        "name": "눈 evil · 입 sad",
+        "name": "장난 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_evil_sad.png",
         "price": 450
       },
       {
         "id": "custom_evil_saliva",
-        "name": "눈 evil · 입 saliva",
+        "name": "장난 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_evil_saliva.png",
         "price": 450
       },
       {
         "id": "custom_evil_smile",
-        "name": "눈 evil · 입 smile",
+        "name": "장난 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_evil_smile.png",
         "price": 450
       },
       {
         "id": "custom_evil_teeth",
-        "name": "눈 evil · 입 teeth",
+        "name": "장난 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_evil_teeth.png",
         "price": 450
       },
       {
         "id": "custom_evil_teeth_smile",
-        "name": "눈 evil · 입 teeth_smile",
+        "name": "장난 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_evil_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_fright_open_mouth",
-        "name": "눈 fright · 입 open_mouth",
+        "name": "놀란 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_fright_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_fright_sad",
-        "name": "눈 fright · 입 sad",
+        "name": "놀란 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_fright_sad.png",
         "price": 450
       },
       {
         "id": "custom_fright_saliva",
-        "name": "눈 fright · 입 saliva",
+        "name": "놀란 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_fright_saliva.png",
         "price": 450
       },
       {
         "id": "custom_fright_smile",
-        "name": "눈 fright · 입 smile",
+        "name": "놀란 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_fright_smile.png",
         "price": 450
       },
       {
         "id": "custom_fright_teeth",
-        "name": "눈 fright · 입 teeth",
+        "name": "놀란 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_fright_teeth.png",
         "price": 450
       },
       {
         "id": "custom_fright_teeth_smile",
-        "name": "눈 fright · 입 teeth_smile",
+        "name": "놀란 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_fright_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_love_open_mouth",
-        "name": "눈 love · 입 open_mouth",
+        "name": "하트 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_love_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_love_sad",
-        "name": "눈 love · 입 sad",
+        "name": "하트 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_love_sad.png",
         "price": 450
       },
       {
         "id": "custom_love_saliva",
-        "name": "눈 love · 입 saliva",
+        "name": "하트 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_love_saliva.png",
         "price": 450
       },
       {
         "id": "custom_love_smile",
-        "name": "눈 love · 입 smile",
+        "name": "하트 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_love_smile.png",
         "price": 450
       },
       {
         "id": "custom_love_teeth",
-        "name": "눈 love · 입 teeth",
+        "name": "하트 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_love_teeth.png",
         "price": 450
       },
       {
         "id": "custom_love_teeth_smile",
-        "name": "눈 love · 입 teeth_smile",
+        "name": "하트 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_love_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_open_mouth",
-        "name": "눈 ordinary · 입 open_mouth",
+        "name": "보통 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_ordinary_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_sad",
-        "name": "눈 ordinary · 입 sad",
+        "name": "보통 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_ordinary_sad.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_saliva",
-        "name": "눈 ordinary · 입 saliva",
+        "name": "보통 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_ordinary_saliva.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_smile",
-        "name": "눈 ordinary · 입 smile",
+        "name": "보통 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_ordinary_smile.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_teeth",
-        "name": "눈 ordinary · 입 teeth",
+        "name": "보통 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_ordinary_teeth.png",
         "price": 450
       },
       {
         "id": "custom_ordinary_teeth_smile",
-        "name": "눈 ordinary · 입 teeth_smile",
+        "name": "보통 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_ordinary_teeth_smile.png",
         "price": 450
       },
       {
         "id": "custom_sad_open_mouth",
-        "name": "눈 sad · 입 open_mouth",
+        "name": "슬픈 눈 · 입 벌림",
         "file": "assets/nonemo/eyes/custom_sad_open_mouth.png",
         "price": 450
       },
       {
         "id": "custom_sad_sad",
-        "name": "눈 sad · 입 sad",
+        "name": "슬픈 눈 · 슬픈 입",
         "file": "assets/nonemo/eyes/custom_sad_sad.png",
         "price": 450
       },
       {
         "id": "custom_sad_saliva",
-        "name": "눈 sad · 입 saliva",
+        "name": "슬픈 눈 · 침 흘림",
         "file": "assets/nonemo/eyes/custom_sad_saliva.png",
         "price": 450
       },
       {
         "id": "custom_sad_smile",
-        "name": "눈 sad · 입 smile",
+        "name": "슬픈 눈 · 웃는 입",
         "file": "assets/nonemo/eyes/custom_sad_smile.png",
         "price": 450
       },
       {
         "id": "custom_sad_teeth",
-        "name": "눈 sad · 입 teeth",
+        "name": "슬픈 눈 · 이 보이는 입",
         "file": "assets/nonemo/eyes/custom_sad_teeth.png",
         "price": 450
       },
       {
         "id": "custom_sad_teeth_smile",
-        "name": "눈 sad · 입 teeth_smile",
+        "name": "슬픈 눈 · 활짝 웃는 입",
         "file": "assets/nonemo/eyes/custom_sad_teeth_smile.png",
         "price": 450
       }
@@ -672,271 +672,271 @@
     "hair": [
       {
         "id": "regular_brown",
-        "name": "regular brown",
+        "name": "갈색 기본 앞머리",
         "file": "assets/nonemo/hair/regular_brown.png",
         "price": 0
       },
       {
         "id": "chupchik_black",
-        "name": "chupchik black",
+        "name": "검정 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_black.png",
         "price": 425
       },
       {
         "id": "chupchik_blond",
-        "name": "chupchik blond",
+        "name": "금발 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_blond.png",
         "price": 425
       },
       {
         "id": "chupchik_blue",
-        "name": "chupchik blue",
+        "name": "파랑 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_blue.png",
         "price": 425
       },
       {
         "id": "chupchik_brown",
-        "name": "chupchik brown",
+        "name": "갈색 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_brown.png",
         "price": 425
       },
       {
         "id": "chupchik_green",
-        "name": "chupchik green",
+        "name": "초록 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_green.png",
         "price": 425
       },
       {
         "id": "chupchik_orange",
-        "name": "chupchik orange",
+        "name": "주황 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_orange.png",
         "price": 425
       },
       {
         "id": "chupchik_red",
-        "name": "chupchik red",
+        "name": "빨강 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_red.png",
         "price": 425
       },
       {
         "id": "chupchik_violet",
-        "name": "chupchik violet",
+        "name": "보라 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_violet.png",
         "price": 425
       },
       {
         "id": "chupchik_white",
-        "name": "chupchik white",
+        "name": "하양 몽실 앞머리",
         "file": "assets/nonemo/hair/chupchik_white.png",
         "price": 425
       },
       {
         "id": "curly_black",
-        "name": "curly black",
+        "name": "검정 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_black.png",
         "price": 425
       },
       {
         "id": "curly_blond",
-        "name": "curly blond",
+        "name": "금발 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_blond.png",
         "price": 425
       },
       {
         "id": "curly_blue",
-        "name": "curly blue",
+        "name": "파랑 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_blue.png",
         "price": 425
       },
       {
         "id": "curly_brown",
-        "name": "curly brown",
+        "name": "갈색 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_brown.png",
         "price": 425
       },
       {
         "id": "curly_green",
-        "name": "curly green",
+        "name": "초록 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_green.png",
         "price": 425
       },
       {
         "id": "curly_orange",
-        "name": "curly orange",
+        "name": "주황 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_orange.png",
         "price": 425
       },
       {
         "id": "curly_red",
-        "name": "curly red",
+        "name": "빨강 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_red.png",
         "price": 425
       },
       {
         "id": "curly_violet",
-        "name": "curly violet",
+        "name": "보라 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_violet.png",
         "price": 425
       },
       {
         "id": "curly_white",
-        "name": "curly white",
+        "name": "하양 곱슬 앞머리",
         "file": "assets/nonemo/hair/curly_white.png",
         "price": 425
       },
       {
         "id": "elegant_black",
-        "name": "elegant black",
+        "name": "검정 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_black.png",
         "price": 425
       },
       {
         "id": "elegant_blond",
-        "name": "elegant blond",
+        "name": "금발 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_blond.png",
         "price": 425
       },
       {
         "id": "elegant_blue",
-        "name": "elegant blue",
+        "name": "파랑 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_blue.png",
         "price": 425
       },
       {
         "id": "elegant_brown",
-        "name": "elegant brown",
+        "name": "갈색 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_brown.png",
         "price": 425
       },
       {
         "id": "elegant_green",
-        "name": "elegant green",
+        "name": "초록 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_green.png",
         "price": 425
       },
       {
         "id": "elegant_orange",
-        "name": "elegant orange",
+        "name": "주황 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_orange.png",
         "price": 425
       },
       {
         "id": "elegant_red",
-        "name": "elegant red",
+        "name": "빨강 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_red.png",
         "price": 425
       },
       {
         "id": "elegant_violet",
-        "name": "elegant violet",
+        "name": "보라 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_violet.png",
         "price": 425
       },
       {
         "id": "elegant_white",
-        "name": "elegant white",
+        "name": "하양 우아한 앞머리",
         "file": "assets/nonemo/hair/elegant_white.png",
         "price": 425
       },
       {
         "id": "regular_black",
-        "name": "regular black",
+        "name": "검정 기본 앞머리",
         "file": "assets/nonemo/hair/regular_black.png",
         "price": 425
       },
       {
         "id": "regular_blond",
-        "name": "regular blond",
+        "name": "금발 기본 앞머리",
         "file": "assets/nonemo/hair/regular_blond.png",
         "price": 425
       },
       {
         "id": "regular_blue",
-        "name": "regular blue",
+        "name": "파랑 기본 앞머리",
         "file": "assets/nonemo/hair/regular_blue.png",
         "price": 425
       },
       {
         "id": "regular_green",
-        "name": "regular green",
+        "name": "초록 기본 앞머리",
         "file": "assets/nonemo/hair/regular_green.png",
         "price": 425
       },
       {
         "id": "regular_orange",
-        "name": "regular orange",
+        "name": "주황 기본 앞머리",
         "file": "assets/nonemo/hair/regular_orange.png",
         "price": 425
       },
       {
         "id": "regular_red",
-        "name": "regular red",
+        "name": "빨강 기본 앞머리",
         "file": "assets/nonemo/hair/regular_red.png",
         "price": 425
       },
       {
         "id": "regular_violet",
-        "name": "regular violet",
+        "name": "보라 기본 앞머리",
         "file": "assets/nonemo/hair/regular_violet.png",
         "price": 425
       },
       {
         "id": "regular_white",
-        "name": "regular white",
+        "name": "하양 기본 앞머리",
         "file": "assets/nonemo/hair/regular_white.png",
         "price": 425
       },
       {
         "id": "straight_black",
-        "name": "straight black",
+        "name": "검정 일자 앞머리",
         "file": "assets/nonemo/hair/straight_black.png",
         "price": 425
       },
       {
         "id": "straight_blond",
-        "name": "straight blond",
+        "name": "금발 일자 앞머리",
         "file": "assets/nonemo/hair/straight_blond.png",
         "price": 425
       },
       {
         "id": "straight_blue",
-        "name": "straight blue",
+        "name": "파랑 일자 앞머리",
         "file": "assets/nonemo/hair/straight_blue.png",
         "price": 425
       },
       {
         "id": "straight_brown",
-        "name": "straight brown",
+        "name": "갈색 일자 앞머리",
         "file": "assets/nonemo/hair/straight_brown.png",
         "price": 425
       },
       {
         "id": "straight_green",
-        "name": "straight green",
+        "name": "초록 일자 앞머리",
         "file": "assets/nonemo/hair/straight_green.png",
         "price": 425
       },
       {
         "id": "straight_orange",
-        "name": "straight orange",
+        "name": "주황 일자 앞머리",
         "file": "assets/nonemo/hair/straight_orange.png",
         "price": 425
       },
       {
         "id": "straight_red",
-        "name": "straight red",
+        "name": "빨강 일자 앞머리",
         "file": "assets/nonemo/hair/straight_red.png",
         "price": 425
       },
       {
         "id": "straight_violet",
-        "name": "straight violet",
+        "name": "보라 일자 앞머리",
         "file": "assets/nonemo/hair/straight_violet.png",
         "price": 425
       },
       {
         "id": "straight_white",
-        "name": "straight white",
+        "name": "하양 일자 앞머리",
         "file": "assets/nonemo/hair/straight_white.png",
         "price": 425
       }
@@ -944,31 +944,31 @@
     "glasses": [
       {
         "id": "none",
-        "name": "착용 안 함",
+        "name": "안경 없음",
         "file": "",
         "price": 0
       },
       {
         "id": "round_black",
-        "name": "round black",
+        "name": "검정 동그란 안경",
         "file": "assets/nonemo/glasses/round_black.png",
         "price": 300
       },
       {
         "id": "round_white",
-        "name": "round white",
+        "name": "하양 동그란 안경",
         "file": "assets/nonemo/glasses/round_white.png",
         "price": 300
       },
       {
         "id": "square_black",
-        "name": "square black",
+        "name": "검정 네모난 안경",
         "file": "assets/nonemo/glasses/square_black.png",
         "price": 300
       },
       {
         "id": "square_white",
-        "name": "square white",
+        "name": "하양 네모난 안경",
         "file": "assets/nonemo/glasses/square_white.png",
         "price": 300
       }
@@ -976,169 +976,169 @@
     "beard": [
       {
         "id": "none",
-        "name": "착용 안 함",
+        "name": "수염 없음",
         "file": "",
         "price": 0
       },
       {
         "id": "long_black",
-        "name": "long black",
+        "name": "검정 긴 수염",
         "file": "assets/nonemo/beard/long_black.png",
         "price": 300
       },
       {
         "id": "long_blond",
-        "name": "long blond",
+        "name": "금발 긴 수염",
         "file": "assets/nonemo/beard/long_blond.png",
         "price": 300
       },
       {
         "id": "long_blue",
-        "name": "long blue",
+        "name": "파랑 긴 수염",
         "file": "assets/nonemo/beard/long_blue.png",
         "price": 300
       },
       {
         "id": "long_brown",
-        "name": "long brown",
+        "name": "갈색 긴 수염",
         "file": "assets/nonemo/beard/long_brown.png",
         "price": 300
       },
       {
         "id": "long_green",
-        "name": "long green",
+        "name": "초록 긴 수염",
         "file": "assets/nonemo/beard/long_green.png",
         "price": 300
       },
       {
         "id": "long_orange",
-        "name": "long orange",
+        "name": "주황 긴 수염",
         "file": "assets/nonemo/beard/long_orange.png",
         "price": 300
       },
       {
         "id": "long_red",
-        "name": "long red",
+        "name": "빨강 긴 수염",
         "file": "assets/nonemo/beard/long_red.png",
         "price": 300
       },
       {
         "id": "long_violet",
-        "name": "long violet",
+        "name": "보라 긴 수염",
         "file": "assets/nonemo/beard/long_violet.png",
         "price": 300
       },
       {
         "id": "long_white",
-        "name": "long white",
+        "name": "하양 긴 수염",
         "file": "assets/nonemo/beard/long_white.png",
         "price": 300
       },
       {
         "id": "middle_black",
-        "name": "middle black",
+        "name": "검정 중간 수염",
         "file": "assets/nonemo/beard/middle_black.png",
         "price": 300
       },
       {
         "id": "middle_blond",
-        "name": "middle blond",
+        "name": "금발 중간 수염",
         "file": "assets/nonemo/beard/middle_blond.png",
         "price": 300
       },
       {
         "id": "middle_blue",
-        "name": "middle blue",
+        "name": "파랑 중간 수염",
         "file": "assets/nonemo/beard/middle_blue.png",
         "price": 300
       },
       {
         "id": "middle_brown",
-        "name": "middle brown",
+        "name": "갈색 중간 수염",
         "file": "assets/nonemo/beard/middle_brown.png",
         "price": 300
       },
       {
         "id": "middle_green",
-        "name": "middle green",
+        "name": "초록 중간 수염",
         "file": "assets/nonemo/beard/middle_green.png",
         "price": 300
       },
       {
         "id": "middle_orange",
-        "name": "middle orange",
+        "name": "주황 중간 수염",
         "file": "assets/nonemo/beard/middle_orange.png",
         "price": 300
       },
       {
         "id": "middle_red",
-        "name": "middle red",
+        "name": "빨강 중간 수염",
         "file": "assets/nonemo/beard/middle_red.png",
         "price": 300
       },
       {
         "id": "middle_violet",
-        "name": "middle violet",
+        "name": "보라 중간 수염",
         "file": "assets/nonemo/beard/middle_violet.png",
         "price": 300
       },
       {
         "id": "middle_white",
-        "name": "middle white",
+        "name": "하양 중간 수염",
         "file": "assets/nonemo/beard/middle_white.png",
         "price": 300
       },
       {
         "id": "short_black",
-        "name": "short black",
+        "name": "검정 짧은 수염",
         "file": "assets/nonemo/beard/short_black.png",
         "price": 300
       },
       {
         "id": "short_blond",
-        "name": "short blond",
+        "name": "금발 짧은 수염",
         "file": "assets/nonemo/beard/short_blond.png",
         "price": 300
       },
       {
         "id": "short_blue",
-        "name": "short blue",
+        "name": "파랑 짧은 수염",
         "file": "assets/nonemo/beard/short_blue.png",
         "price": 300
       },
       {
         "id": "short_brown",
-        "name": "short brown",
+        "name": "갈색 짧은 수염",
         "file": "assets/nonemo/beard/short_brown.png",
         "price": 300
       },
       {
         "id": "short_green",
-        "name": "short green",
+        "name": "초록 짧은 수염",
         "file": "assets/nonemo/beard/short_green.png",
         "price": 300
       },
       {
         "id": "short_orange",
-        "name": "short orange",
+        "name": "주황 짧은 수염",
         "file": "assets/nonemo/beard/short_orange.png",
         "price": 300
       },
       {
         "id": "short_red",
-        "name": "short red",
+        "name": "빨강 짧은 수염",
         "file": "assets/nonemo/beard/short_red.png",
         "price": 300
       },
       {
         "id": "short_violet",
-        "name": "short violet",
+        "name": "보라 짧은 수염",
         "file": "assets/nonemo/beard/short_violet.png",
         "price": 300
       },
       {
         "id": "short_white",
-        "name": "short white",
+        "name": "하양 짧은 수염",
         "file": "assets/nonemo/beard/short_white.png",
         "price": 300
       }
@@ -1146,271 +1146,271 @@
     "frontHair": [
       {
         "id": "regular_brown",
-        "name": "regular brown",
+        "name": "갈색 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_brown.png",
         "price": 0
       },
       {
         "id": "chupchik_black",
-        "name": "chupchik black",
+        "name": "검정 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_black.png",
         "price": 425
       },
       {
         "id": "chupchik_blond",
-        "name": "chupchik blond",
+        "name": "금발 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_blond.png",
         "price": 425
       },
       {
         "id": "chupchik_blue",
-        "name": "chupchik blue",
+        "name": "파랑 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_blue.png",
         "price": 425
       },
       {
         "id": "chupchik_brown",
-        "name": "chupchik brown",
+        "name": "갈색 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_brown.png",
         "price": 425
       },
       {
         "id": "chupchik_green",
-        "name": "chupchik green",
+        "name": "초록 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_green.png",
         "price": 425
       },
       {
         "id": "chupchik_orange",
-        "name": "chupchik orange",
+        "name": "주황 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_orange.png",
         "price": 425
       },
       {
         "id": "chupchik_red",
-        "name": "chupchik red",
+        "name": "빨강 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_red.png",
         "price": 425
       },
       {
         "id": "chupchik_violet",
-        "name": "chupchik violet",
+        "name": "보라 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_violet.png",
         "price": 425
       },
       {
         "id": "chupchik_white",
-        "name": "chupchik white",
+        "name": "하양 몽실 앞머리",
         "file": "assets/nonemo/frontHair/chupchik_white.png",
         "price": 425
       },
       {
         "id": "curly_black",
-        "name": "curly black",
+        "name": "검정 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_black.png",
         "price": 425
       },
       {
         "id": "curly_blond",
-        "name": "curly blond",
+        "name": "금발 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_blond.png",
         "price": 425
       },
       {
         "id": "curly_blue",
-        "name": "curly blue",
+        "name": "파랑 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_blue.png",
         "price": 425
       },
       {
         "id": "curly_brown",
-        "name": "curly brown",
+        "name": "갈색 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_brown.png",
         "price": 425
       },
       {
         "id": "curly_green",
-        "name": "curly green",
+        "name": "초록 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_green.png",
         "price": 425
       },
       {
         "id": "curly_orange",
-        "name": "curly orange",
+        "name": "주황 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_orange.png",
         "price": 425
       },
       {
         "id": "curly_red",
-        "name": "curly red",
+        "name": "빨강 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_red.png",
         "price": 425
       },
       {
         "id": "curly_violet",
-        "name": "curly violet",
+        "name": "보라 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_violet.png",
         "price": 425
       },
       {
         "id": "curly_white",
-        "name": "curly white",
+        "name": "하양 곱슬 앞머리",
         "file": "assets/nonemo/frontHair/curly_white.png",
         "price": 425
       },
       {
         "id": "elegant_black",
-        "name": "elegant black",
+        "name": "검정 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_black.png",
         "price": 425
       },
       {
         "id": "elegant_blond",
-        "name": "elegant blond",
+        "name": "금발 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_blond.png",
         "price": 425
       },
       {
         "id": "elegant_blue",
-        "name": "elegant blue",
+        "name": "파랑 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_blue.png",
         "price": 425
       },
       {
         "id": "elegant_brown",
-        "name": "elegant brown",
+        "name": "갈색 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_brown.png",
         "price": 425
       },
       {
         "id": "elegant_green",
-        "name": "elegant green",
+        "name": "초록 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_green.png",
         "price": 425
       },
       {
         "id": "elegant_orange",
-        "name": "elegant orange",
+        "name": "주황 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_orange.png",
         "price": 425
       },
       {
         "id": "elegant_red",
-        "name": "elegant red",
+        "name": "빨강 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_red.png",
         "price": 425
       },
       {
         "id": "elegant_violet",
-        "name": "elegant violet",
+        "name": "보라 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_violet.png",
         "price": 425
       },
       {
         "id": "elegant_white",
-        "name": "elegant white",
+        "name": "하양 우아한 앞머리",
         "file": "assets/nonemo/frontHair/elegant_white.png",
         "price": 425
       },
       {
         "id": "regular_black",
-        "name": "regular black",
+        "name": "검정 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_black.png",
         "price": 425
       },
       {
         "id": "regular_blond",
-        "name": "regular blond",
+        "name": "금발 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_blond.png",
         "price": 425
       },
       {
         "id": "regular_blue",
-        "name": "regular blue",
+        "name": "파랑 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_blue.png",
         "price": 425
       },
       {
         "id": "regular_green",
-        "name": "regular green",
+        "name": "초록 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_green.png",
         "price": 425
       },
       {
         "id": "regular_orange",
-        "name": "regular orange",
+        "name": "주황 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_orange.png",
         "price": 425
       },
       {
         "id": "regular_red",
-        "name": "regular red",
+        "name": "빨강 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_red.png",
         "price": 425
       },
       {
         "id": "regular_violet",
-        "name": "regular violet",
+        "name": "보라 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_violet.png",
         "price": 425
       },
       {
         "id": "regular_white",
-        "name": "regular white",
+        "name": "하양 기본 앞머리",
         "file": "assets/nonemo/frontHair/regular_white.png",
         "price": 425
       },
       {
         "id": "straight_black",
-        "name": "straight black",
+        "name": "검정 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_black.png",
         "price": 425
       },
       {
         "id": "straight_blond",
-        "name": "straight blond",
+        "name": "금발 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_blond.png",
         "price": 425
       },
       {
         "id": "straight_blue",
-        "name": "straight blue",
+        "name": "파랑 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_blue.png",
         "price": 425
       },
       {
         "id": "straight_brown",
-        "name": "straight brown",
+        "name": "갈색 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_brown.png",
         "price": 425
       },
       {
         "id": "straight_green",
-        "name": "straight green",
+        "name": "초록 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_green.png",
         "price": 425
       },
       {
         "id": "straight_orange",
-        "name": "straight orange",
+        "name": "주황 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_orange.png",
         "price": 425
       },
       {
         "id": "straight_red",
-        "name": "straight red",
+        "name": "빨강 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_red.png",
         "price": 425
       },
       {
         "id": "straight_violet",
-        "name": "straight violet",
+        "name": "보라 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_violet.png",
         "price": 425
       },
       {
         "id": "straight_white",
-        "name": "straight white",
+        "name": "하양 일자 앞머리",
         "file": "assets/nonemo/frontHair/straight_white.png",
         "price": 425
       }
@@ -1424,163 +1424,163 @@
       },
       {
         "id": "curly_black",
-        "name": "curly / black 뒷머리",
+        "name": "검정 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_black.png",
         "price": 450
       },
       {
         "id": "curly_blond",
-        "name": "curly / blond 뒷머리",
+        "name": "금발 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_blond.png",
         "price": 450
       },
       {
         "id": "curly_blue",
-        "name": "curly / blue 뒷머리",
+        "name": "파랑 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_blue.png",
         "price": 450
       },
       {
         "id": "curly_brown",
-        "name": "curly / brown 뒷머리",
+        "name": "갈색 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_brown.png",
         "price": 450
       },
       {
         "id": "curly_green",
-        "name": "curly / green 뒷머리",
+        "name": "초록 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_green.png",
         "price": 450
       },
       {
         "id": "curly_orange",
-        "name": "curly / orange 뒷머리",
+        "name": "주황 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_orange.png",
         "price": 450
       },
       {
         "id": "curly_red",
-        "name": "curly / red 뒷머리",
+        "name": "빨강 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_red.png",
         "price": 450
       },
       {
         "id": "curly_violet",
-        "name": "curly / violet 뒷머리",
+        "name": "보라 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_violet.png",
         "price": 450
       },
       {
         "id": "curly_white",
-        "name": "curly / white 뒷머리",
+        "name": "하양 곱슬 뒷머리",
         "file": "assets/nonemo/backHair/curly_white.png",
         "price": 450
       },
       {
         "id": "long_black",
-        "name": "long / black 뒷머리",
+        "name": "검정 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_black.png",
         "price": 450
       },
       {
         "id": "long_blond",
-        "name": "long / blond 뒷머리",
+        "name": "금발 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_blond.png",
         "price": 450
       },
       {
         "id": "long_blue",
-        "name": "long / blue 뒷머리",
+        "name": "파랑 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_blue.png",
         "price": 450
       },
       {
         "id": "long_brown",
-        "name": "long / brown 뒷머리",
+        "name": "갈색 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_brown.png",
         "price": 450
       },
       {
         "id": "long_green",
-        "name": "long / green 뒷머리",
+        "name": "초록 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_green.png",
         "price": 450
       },
       {
         "id": "long_orange",
-        "name": "long / orange 뒷머리",
+        "name": "주황 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_orange.png",
         "price": 450
       },
       {
         "id": "long_red",
-        "name": "long / red 뒷머리",
+        "name": "빨강 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_red.png",
         "price": 450
       },
       {
         "id": "long_violet",
-        "name": "long / violet 뒷머리",
+        "name": "보라 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_violet.png",
         "price": 450
       },
       {
         "id": "long_white",
-        "name": "long / white 뒷머리",
+        "name": "하양 긴 뒷머리",
         "file": "assets/nonemo/backHair/long_white.png",
         "price": 450
       },
       {
         "id": "short_black",
-        "name": "short / black 뒷머리",
+        "name": "검정 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_black.png",
         "price": 450
       },
       {
         "id": "short_blond",
-        "name": "short / blond 뒷머리",
+        "name": "금발 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_blond.png",
         "price": 450
       },
       {
         "id": "short_blue",
-        "name": "short / blue 뒷머리",
+        "name": "파랑 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_blue.png",
         "price": 450
       },
       {
         "id": "short_brown",
-        "name": "short / brown 뒷머리",
+        "name": "갈색 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_brown.png",
         "price": 450
       },
       {
         "id": "short_green",
-        "name": "short / green 뒷머리",
+        "name": "초록 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_green.png",
         "price": 450
       },
       {
         "id": "short_orange",
-        "name": "short / orange 뒷머리",
+        "name": "주황 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_orange.png",
         "price": 450
       },
       {
         "id": "short_red",
-        "name": "short / red 뒷머리",
+        "name": "빨강 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_red.png",
         "price": 450
       },
       {
         "id": "short_violet",
-        "name": "short / violet 뒷머리",
+        "name": "보라 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_violet.png",
         "price": 450
       },
       {
         "id": "short_white",
-        "name": "short / white 뒷머리",
+        "name": "하양 짧은 뒷머리",
         "file": "assets/nonemo/backHair/short_white.png",
         "price": 450
       }
