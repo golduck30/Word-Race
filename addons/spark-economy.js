@@ -21,37 +21,12 @@
  function bindNickname(state,uid,nick,catalog){
    const key=nicknameKey(nick);
    state.uidAliases??={};state.users??={};
-   const prior=state.uidAliases[uid];
-   if(prior===key)return copy(ensure(state,uid,catalog));
-   const original=state.users[prior||uid];
-   const existed=!!state.users[key];
-   if(!existed){
-     state.users[key]=original?copy(original):undefined;
-     if(!state.users[key]){delete state.users[key];}
-   } else if(original && (prior||uid)!==key){
-     // Preserve purchased items on either device, but never duplicate starter coins.
-     const dest=state.users[key];
-     for(const [cat,items] of Object.entries(original.owned||{})){
-       dest.owned??={};dest.owned[cat]??={};
-       for(const [id,v] of Object.entries(items||{}))if(v)dest.owned[cat][id]=true;
-     }
-     // All four pet inventory slots follow the nickname, including extensions.
-     for(const group of ['bases','wings','necks','hands']){
-       dest.petOwned??={};dest.petOwned[group]??={};
-       for(const [id,v] of Object.entries(original.petOwned?.[group]||{}))if(v)dest.petOwned[group][id]=true;
-     }
-     dest.petLook??={};
-     for(const slot of ['base','wing','neck','hand']){
-       const oldId=original.petLook?.[slot];
-       const empty={base:'🐶',wing:'wing:none',neck:'neck:none',hand:'hand:none'}[slot];
-       if(oldId && (!dest.petLook[slot] || dest.petLook[slot]===empty))dest.petLook[slot]=oldId;
-     }
-     if(!dest.petMigrated&&original.petMigrated)dest.petMigrated=original.petMigrated;
-     if(!dest.petExtrasMigrated&&original.petExtrasMigrated)dest.petExtrasMigrated=original.petExtrasMigrated;
-   }
-   // Keep historical wallets as a backup, but use the named wallet from now on.
+   // Each nickname owns an independent wallet. A UID is only an access alias.
+   // NEVER clone or merge a previous nickname's wallet when changing nicknames.
+   // A newly named wallet starts from default balance and empty inventory.
    state.uidAliases[uid]=key;
-   const u=ensure(state,uid,catalog);u.nickname=String(nick).trim();
+   const u=ensure(state,uid,catalog);
+   u.nickname=String(nick).trim();
    return copy(u);
  }
  function ensure(state,uid,catalog){
