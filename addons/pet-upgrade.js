@@ -15,7 +15,7 @@
     const wing=allowedWings.includes(p.wing)?p.wing:'wing:none';
     const kind=wing.slice(5);
     const wingImg=['angel','butterfly','fairy','devil','fire','aurora','crystal'].includes(kind)
-      ? `<span class="wr-pet-wing-pair" aria-hidden="true"><img class="wr-pet-wing wr-pet-wing-left" src="assets/wings/${kind}.svg" alt="" draggable="false"><img class="wr-pet-wing wr-pet-wing-right" src="assets/wings/${kind}.svg" alt="" draggable="false"></span>`:'';
+      ? `<span class="wr-pet-wing-pair" aria-hidden="true"><img class="wr-pet-wings-image" src="assets/wings/${kind}.svg" alt="" draggable="false"></span>`:'';
     return `<span class="wr-pet" style="--pet-size:${Math.max(20,Math.min(120,size))}px" aria-label="펫 ${esc(base)}">${wingImg}<span class="wr-pet-base">${esc(base)}</span></span>`;
   }
   function attachRace(data){

@@ -44,31 +44,18 @@ body{background:linear-gradient(145deg,#f5f0ff 0%,#f7fff8 55%,#fff8ed 100%)!impo
 .wr-pet-item-image{height:74px;display:flex;align-items:center;justify-content:center;font-size:43px}
 @media(max-width:550px){.wr-pet-closet{grid-template-columns:1fr}.wr-pet-showcase{padding:12px}.wr-pet-follower{left:-12px}}
 
-/* v2.3: symmetrical pet wings, using original todayword wing art on both sides. */
-.wr-pet-wing-pair{position:absolute;inset:-5% -38%;z-index:1;pointer-events:none;overflow:visible}
-.wr-pet-wing{position:absolute;top:5%;width:58%;height:90%;object-fit:contain;max-width:none;pointer-events:none}
-.wr-pet-wing-left{left:-1%;transform:scaleX(-1);transform-origin:100% 50%}
-.wr-pet-wing-right{right:-1%;transform-origin:0% 50%}
-.wr-pet-base{z-index:2}
 /* Original todayword control bar stays at the very top; race appears beneath it. */
 body > header{order:0;position:relative;z-index:2}
 body > .wr-shell{order:1}
 body > main{order:2}
-@media(max-width:550px){.wr-pet-wing-pair{inset:-6% -40%}}
 
-/* 2026-11: compact balanced pet wings (the original SVG is a single wing). */
-.wr-pet-wing-pair{inset:3% -25%;width:150%;height:90%;left:-25%;display:block;z-index:1;overflow:visible}
-.wr-pet-wing{position:absolute;top:10%;width:42%;height:76%;object-fit:contain;max-width:none;opacity:.97}
-.wr-pet-wing-left{left:1%;transform:scaleX(-1);transform-origin:50% 50%}
-.wr-pet-wing-right{right:1%;transform:none}
-.wr-pet-base{z-index:2}
 /* Item card is preview-only; purchase is an explicit second step. */
 .wr-item.wr-tryon{border:2px solid #5e42c8;box-shadow:0 0 0 2px #e8deff;background:#faf7ff}
 .wr-preview{position:sticky;top:0;align-self:start;padding:16px}
 .wr-preview .wr-note{text-align:center;padding:0 6px}
 .wr-preview #wrPreviewAction{min-height:41px;width:min(240px,96%)}
 .wr-empty-item{height:80px;display:flex;align-items:center;justify-content:center;color:#9886a5}
-@media(max-width:550px){.wr-pet-wing-pair{inset:3% -25%;width:150%;left:-25%}.wr-preview{position:relative}}
+@media(max-width:550px){.wr-preview{position:relative}}
 
 /* Nonemo original modular sheets are normalized to exactly 290×356 px. */
 .wr-avatar{width:var(--w);height:auto;aspect-ratio:290/356;isolation:isolate;overflow:visible;flex:none}
@@ -82,9 +69,35 @@ body > main{order:2}
 .wr-preview #wrPreviewAvatar .wr-avatar{--w:176px}
 @media(max-width:550px){.wr-preview #wrPreviewAvatar .wr-avatar{--w:148px}.wr-grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}}
 
-/* Front/back hair anti-alias seam: do not render back-hair crown underneath
-   the separate fringe. Keep the lower back-hair silhouette intact. */
-.wr-avatar .wr-layer-backHair {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, #000 43%, #000 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, #000 43%, #000 100%);
+
+/* 2026-11-23: The original todayword wing SVG is already a full left/right pair.
+   Render ONE SVG behind the pet; do not duplicate and mirror it. Center at ears,
+   not underneath the chin. Same relative positioning for card and showcase. */
+.wr-pet-wing-pair{
+ position:absolute;z-index:1;pointer-events:none;
+ width:176%;height:119%;left:50%;top:-21%;transform:translateX(-50%);
+ display:block;overflow:visible;
 }
+.wr-pet-wings-image{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;position:static!important;max-width:none!important;
+ margin:0!important;padding:0!important;border:0!important;
+}
+.wr-pet-base{z-index:2}
+/* Original nonemo back hair has a full-width crown / long strands. Do not
+   apply the old 24%-43% vertical fade: it erased much of the visible hair. */
+.wr-avatar .wr-layer-backHair{-webkit-mask-image:none!important;mask-image:none!important}
+/* For back-hair shopping show the source piece AND the fully layered outfit. */
+.wr-backhair-piece{display:flex;align-items:center;justify-content:center;min-height:85px;width:100%}
+.wr-backhair-piece img{display:block;width:82px;height:100px;object-fit:contain;max-width:100%}
+.wr-backhair-piece .wr-no-backhair{font-size:12px;color:#736688}
+.wr-backhair-piece-label{font-size:10px;color:#786a96;margin:0 0 3px}
+.wr-backhair-inspector{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px 8px;background:#ffffffa6;border:1px solid #e3d8f2;border-radius:12px}
+.wr-backhair-inspector img{width:115px;height:140px;object-fit:contain}
+.wr-backhair-inspector small{font-size:11px;color:#655576}
+/* Keep the source-part inspector unobtrusive in the dressing-room preview. */
+.wr-preview #wrPreviewAvatar{position:relative;width:100%}
+.wr-backhair-inspector{position:absolute;right:0;bottom:0;z-index:3;padding:4px 6px;width:88px;box-sizing:border-box}
+.wr-backhair-inspector img{width:70px;height:83px}
+.wr-backhair-inspector small{font-size:9px;line-height:1.25}
+@media(max-width:550px){.wr-backhair-inspector{right:2px;width:74px}.wr-backhair-inspector img{width:60px;height:75px}}

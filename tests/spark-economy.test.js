@@ -8,8 +8,10 @@ const a=E.mutateWallet(state,'a',catalog),b=E.mutateWallet(state,'b',catalog);
 assert.equal(a.coins,200);assert.equal(b.coins,200);
 const cat='outfit',buyable=catalog.categories[cat].find(x=>x.price>0);
 assert.ok(buyable,'need a priced asset');
+// Shop prices were increased fivefold; a 200-coin starter wallet cannot buy most items.
+const fundedCoins=Math.max(200,buyable.price+150);state.users.a.coins=fundedCoins;
 const bought=E.mutateBuy(state,'a',catalog,cat,buyable.id);
-assert.equal(bought.coins,200-buyable.price);
+assert.equal(bought.coins,fundedCoins-buyable.price);
 const again=E.mutateBuy(state,'a',catalog,cat,buyable.id);
 assert.equal(again.coins,bought.coins,'no double purchase charge');
 assert.equal(E.mutateEquip(state,'a',catalog,cat,buyable.id).look.outfit,buyable.id);

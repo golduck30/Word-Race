@@ -90,7 +90,12 @@ function previewLook(){
  return previewSelection?{...look,[previewSelection.cat]:previewSelection.id}:look;
 }
 function redrawPreview(){
- const view=$('wrPreviewAvatar');if(view)view.innerHTML=avatar(previewLook(),176);
+ const view=$('wrPreviewAvatar');if(view){
+   const chosen=pick('backHair',previewLook().backHair);
+   const part=(activeCat==='backHair')
+     ? `<div class="wr-backhair-inspector"><small>뒷머리 원본 모양</small>${safeFile(chosen?.file)?`<img src="${chosen.file}" alt="선택한 뒷머리 원본" draggable="false">`:'<small>뒷머리 미착용</small>'}</div>` : '';
+   view.innerHTML=avatar(previewLook(),176)+part;
+ }
  const title=$('wrPreviewTitle'),hint=$('wrPreviewHint'),button=$('wrPreviewAction');
  if(!previewSelection){
    if(title)title.textContent='현재 장착 중인 코디';
@@ -139,7 +144,9 @@ function renderItems(){
  if(!items.length){grid.innerHTML='<p class="wr-note">이 카테고리의 아이템이 비어 있어요. catalog.json과 이미지 파일을 확인해 주세요.</p>';return;}
  grid.innerHTML=items.map(it=>{
   const owned=itemOwned(activeCat,it),equipped=look[activeCat]===it.id,selected=previewSelection?.cat===activeCat&&previewSelection?.id===it.id;
-  const picture=avatar({...look,[activeCat]:it.id},82);
+  const picture=activeCat==='backHair'
+   ? `<span class="wr-backhair-piece">${safeFile(it.file)?`<img src="${it.file}" alt="${escape(it.name)} 뒷머리 원본" loading="lazy" draggable="false">`:'<span class="wr-no-backhair">미착용</span>'}</span><small class="wr-backhair-piece-label">뒷머리 단독</small>`
+   : avatar({...look,[activeCat]:it.id},82);
   return `<button type="button" class="wr-item${equipped?' active':''}${selected?' wr-tryon':''}" data-id="${escape(it.id)}" aria-label="${escape(it.name)} 미리보기">${picture}<strong>${escape(it.name)}</strong><span class="price">${equipped?'장착 중':owned?'보유 · 미리보기':'🪙 '+Number(it.price)}</span></button>`;
  }).join('');
  grid.onclick=e=>{
