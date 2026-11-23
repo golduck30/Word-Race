@@ -63,16 +63,29 @@ async function paintAvatarCanvas(canvas, customLook={}){
   ctx.drawImage(composed,0,0,AVATAR_W,AVATAR_H);
 }
 function hydrateAvatars(scope=document){
-  const nodes=[...scope.querySelectorAll('canvas.wr-avatar-canvas[data-look]')];
+  const nodes=[...scope.querySelectorAll('canvas.wr-avatar-canvas[data-look]:not([data-render-token])')];
   nodes.forEach(canvas=>{
     let data={};
     try{ data=JSON.parse(canvas.getAttribute('data-look')||'{}'); }catch{ return; }
+    // Once per canvas node; replaced HTML gets new nodes and is automatically rendered.
     const token=String(Date.now())+Math.random();
     canvas.dataset.renderToken=token;
     paintAvatarCanvas(canvas,data).then(()=>{
       if(canvas.dataset.renderToken===token) canvas.dataset.hydrated='1';
     }).catch(err=>console.warn('avatar composite failed:',err));
   });
+}
+let avatarObserver=null, avatarScanQueued=false;
+function watchAvatarContainers(){
+  if(avatarObserver)return;
+  avatarObserver=new MutationObserver(mutations=>{
+    if(!mutations.some(m=>m.addedNodes.length))return;
+    if(avatarScanQueued)return;
+    avatarScanQueued=true;
+    queueMicrotask(()=>{avatarScanQueued=false;hydrateAvatars(document)});
+  });
+  avatarObserver.observe(document.body,{childList:true,subtree:true});
+  hydrateAvatars(document);
 }
 function avatar(customLook={},size=48,bounce=false){
   const L=normalizedLook(customLook);
@@ -81,6 +94,7 @@ function avatar(customLook={},size=48,bounce=false){
   return `<span class="wr-avatar${bounce?' wr-bounce':''}" style="--w:${w}px" role="img" aria-label="커스터마이징 캐릭터"><canvas class="wr-layer wr-avatar-canvas" width="${AVATAR_W}" height="${AVATAR_H}" data-look="${spec}"></canvas></span>`;
 }
 function injectUI(){
+ watchAvatarContainers();
  if($('wrShell'))return;
  const shell=document.createElement('section');shell.id='wrShell';shell.className='wr-shell';
  shell.innerHTML=`<div class="wr-top"><div><div class="wr-title">🏁 WORD-RACE</div><div class="wr-tagline">오늘의 단어 · 원본 규칙 + 치비 코디 + 관전자 예측</div></div><div class="wr-actions"><a class="wr-btn primary" href="solo.html">혼자하기 · 보상 0</a><button class="wr-btn" id="wrClosetBtn">👗 드레스룸</button><button class="wr-btn" id="wrBetBtn">👀 우승자 예측</button><span id="wrCoins" class="wr-btn">🪙 코인 연결 중</span></div></div><div class="wr-race"><div class="wr-hill"></div><div class="wr-track" id="wrTrack"><div class="wr-message">방을 만들거나 참가하면 캐릭터들이 이곳에서 달려요.</div></div><span class="wr-roadlabel start">START</span><span class="wr-roadlabel end">LEADER 🏁</span></div>`;
@@ -223,6 +237,18 @@ async function openBets(){
  try{busy=true;wallet=await call('wrBet',{roomCode:room,roundId:data.round,targetUid:b.dataset.uid});renderWallet();$('wrBetStatus').textContent='예측 완료! 라운드 종료 후 자동 정산됩니다.';$('wrBetPicks').style.display='none';}catch(err){$('wrBetStatus').textContent='예측 실패: '+err.message}finally{busy=false}
  };
 }
+let lastSharedLookKey='';
+function broadcastCurrentLook(){
+ try{
+   if(typeof db==='undefined'||!db||typeof currentRoomCode==='undefined'||!currentRoomCode)return;
+   if(typeof lastRoomData==='undefined'||!lastRoomData?.players?.[uid])return;
+   const body={wrLook:look,wrPet:wallet.petLook||{base:'🐶',wing:'wing:none'}};
+   const k=currentRoomCode+':'+JSON.stringify(body);
+   if(k===lastSharedLookKey)return;
+   lastSharedLookKey=k;
+   db.ref('rooms/'+currentRoomCode+'/players/'+uid).update(body).catch(e=>{lastSharedLookKey='';console.warn('코디 동기화:',e)});
+ }catch(e){console.warn('코디 공유:',e)}
+}
 async function beforeNextRound(){
  const data=typeof lastRoomData!=='undefined'?lastRoomData:null;
  const room=typeof currentRoomCode!=='undefined'?currentRoomCode:null;
@@ -239,9 +265,9 @@ async function init(authUid){uid=authUid;injectUI();await loadCatalog();
  await syncWallet();
  if(typeof renderProfileBtn==='function')renderProfileBtn();
  // Keep legacy profile as historical bookkeeping only; game scores and wardrobe use the Spark wallet.
- if(typeof db!=='undefined'&&db){economy.subscribe(v=>{wallet=v;look={...DEFAULT,...(wallet.look||{})};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet()})}
+ if(typeof db!=='undefined'&&db){economy.subscribe(v=>{wallet=v;look={...DEFAULT,...(wallet.look||{})};if(!wallet.look?.frontHair && wallet.look?.hair)look.frontHair=wallet.look.hair;renderWallet();broadcastCurrentLook()})}
  if(typeof lastRoomData!=='undefined'&&lastRoomData)renderRace(lastRoomData);
- let lastRoom='';setInterval(()=>{bindCurrentNickname().catch(console.warn);if(typeof currentRoomCode==='undefined'||!currentRoomCode||!db||typeof lastRoomData==='undefined'||!lastRoomData?.players?.[uid])return;const code=currentRoomCode;if(code!==lastRoom){lastRoom=code;db.ref('rooms/'+code+'/players/'+uid).update({wrLook:look,wrPet:wallet.petLook||{base:'🐶',wing:'wing:none'}}).catch(console.warn)}},2500);
+ setInterval(()=>{bindCurrentNickname().catch(console.warn);broadcastCurrentLook()},2500);
 }
 window.WR_BEFORE_NEXT_ROUND=beforeNextRound;
 function renderProfileBadge(){const btn=$('profileBtn');if(btn){btn.textContent='👗 코디 · 상점';btn.title='Word-Race 드레스룸';}}
@@ -257,5 +283,5 @@ function maybeSettle(data){
  call('wrSettle',{roomCode:code,roundId:data.round}).then(()=>{lastSettling=key;syncWallet()}).catch(err=>console.warn('자동 정산 보류:',err.message)).finally(()=>settleBusy=false);
 }
 const originalRace=renderRace;
-window.WordRaceUI={init,initOffline,avatar,hydrateAvatars,renderRace(data){originalRace(data);maybeSettle(data)},openCloset,renderProfileBadge};
+window.WordRaceUI={init,initOffline,avatar,hydrateAvatars,currentLook:()=>({...look}),renderRace(data){originalRace(data);maybeSettle(data)},openCloset,renderProfileBadge};
 })();

@@ -35,11 +35,19 @@
        dest.owned??={};dest.owned[cat]??={};
        for(const [id,v] of Object.entries(items||{}))if(v)dest.owned[cat][id]=true;
      }
-     for(const group of ['bases','wings']){
+     // All four pet inventory slots follow the nickname, including extensions.
+     for(const group of ['bases','wings','necks','hands']){
        dest.petOwned??={};dest.petOwned[group]??={};
        for(const [id,v] of Object.entries(original.petOwned?.[group]||{}))if(v)dest.petOwned[group][id]=true;
      }
+     dest.petLook??={};
+     for(const slot of ['base','wing','neck','hand']){
+       const oldId=original.petLook?.[slot];
+       const empty={base:'🐶',wing:'wing:none',neck:'neck:none',hand:'hand:none'}[slot];
+       if(oldId && (!dest.petLook[slot] || dest.petLook[slot]===empty))dest.petLook[slot]=oldId;
+     }
      if(!dest.petMigrated&&original.petMigrated)dest.petMigrated=original.petMigrated;
+     if(!dest.petExtrasMigrated&&original.petExtrasMigrated)dest.petExtrasMigrated=original.petExtrasMigrated;
    }
    // Keep historical wallets as a backup, but use the named wallet from now on.
    state.uidAliases[uid]=key;

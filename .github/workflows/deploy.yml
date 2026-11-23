@@ -44,6 +44,8 @@ jobs:
           node tests/spark-economy.test.js
           node tests/pet-upgrade.test.js
           node tests/nickname-save.test.js
+          node tests/pet-nickname-extra.test.js
+          python tests/score-avatar-build.test.py
           grep -q 'addons/pet-upgrade.js' dist/index.html
           grep -q 'WR_PET_CATALOG' dist/game.js
           test -f dist/addons/pet-upgrade.js

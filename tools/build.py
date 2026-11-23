@@ -52,21 +52,47 @@ source=source.replace('function pushProfileRemote() {', 'function pushProfileRem
 source=source.replace('function awardCoinsOnce(key, amount) {','function awardCoinsOnce(key, amount) { return false; // Server wallet awards once per finished round')
 # Server settlement before original next-round score commit. Fail closed if settlement is not available.
 source=source.replace('function nextRound() {', 'async function nextRound() {\n            if (typeof window.WR_BEFORE_NEXT_ROUND === "function") {\n                const ok = await window.WR_BEFORE_NEXT_ROUND();\n                if (!ok) return;\n            }')
-# Word-Race scoring request: successful multiplayer guesses are 100 points;
-# old first/second/third speed score and guess bonuses no longer alter that result.
-# Original participation, time limits, hint voting and master bonus remain.
-score_anchor="out[x.u] = { total: Math.max(10, base + speed + time - hint), base, speed, time, hint, role: 'solver' };"
-if source.count(score_anchor)!=1:
-    sys.exit('Original multiplayer score anchor changed, inspect before deploying')
-source=source.replace(score_anchor, "out[x.u] = { total: 100, base: 100, speed: 0, time: 0, hint: 0, role: 'solver' };")
+# Original todayword scoring remains untouched. It grants variable points by attempt,
+# answer order, remaining time, hint penalties and maker bonus.
+# Do not rewrite calcRoundScores (it is authoritative in _todayword_source/game.js).
 # Original score update, hints, host and master rotation all continue executing unchanged.
 source=source.replace('function updateScoreboard(data) {','function updateScoreboard(data) {\n            if (window.WordRaceUI) window.WordRaceUI.renderRace(data);')
 # Redirect shop to the new nonemo dressing room. Old item code remains source-preserved but is not exposed.
 source=source.replace('function openShop() {','function openShop() { if(window.WordRaceUI){window.WordRaceUI.openCloset();return;}')
 # Set UI avatar to actual modular artwork instead of legacy emoji through the existing source function.
 source=source.replace('function renderProfileBtn() {', 'function renderProfileBtn() { if(window.WordRaceUI){window.WordRaceUI.renderProfileBadge();return;}')
-source=source.replace('function avatarHtml(av, size, bounce) {', '''function avatarHtml(av, size, bounce) {
-            if(window.WordRaceUI) return window.WordRaceUI.avatar(av, size || 40, bounce);''')
+source=source.replace('function avatarHtml(av, size, bounce) {', """function wrPlayerAvatarHtml(playerUid, size, bounce) {
+            const p = lastRoomData && lastRoomData.players && lastRoomData.players[playerUid];
+            if (window.WordRaceUI) return window.WordRaceUI.avatar(
+              (p && p.wrLook) || (playerUid === myUid ? window.WordRaceUI.currentLook() : {}), size || 40, bounce);
+            return avatarHtml(sanitizeAv(p && p.avatar), size || 40, bounce);
+        }
+        function avatarHtml(av, size, bounce) {
+            if(window.WordRaceUI) return window.WordRaceUI.avatar(av && av.wrLook || (av && av.frontHair ? av : {}), size || 40, bounce);""")
+# Render each player with that player's Word-Race outfit. Keep legacy emoji fallback.
+PLAYER_AVATAR_PATCHES = [
+    ('const avOf = p => avatarHtml(sanitizeAv(p.avatar), 32);',
+     'const avOf = p => window.WordRaceUI ? window.WordRaceUI.avatar(p.wrLook || {}, 32) : avatarHtml(sanitizeAv(p.avatar), 32);'),
+    ('uid, nickname: p.nickname, avatar: p.avatar, solved,',
+     'uid, nickname: p.nickname, avatar: p.avatar, wrLook: p.wrLook, solved,'),
+    ('avatarHtml(sanitizeAv(w0.avatar), 72, true)', 'wrPlayerAvatarHtml(w0.uid, 72, true)'),
+    ('avatarHtml(sanitizeAv(p.avatar), 32)}${nameHtml(p.uid, p.nickname)',
+     'wrPlayerAvatarHtml(p.uid, 32)}${nameHtml(p.uid, p.nickname)'),
+    ('avatarHtml(sanitizeAv(mp && mp.avatar), 32)}${nameHtml(data.masterUid',
+     'wrPlayerAvatarHtml(data.masterUid, 32)}${nameHtml(data.masterUid'),
+    ('avatarHtml(sanitizeAv(x.avatar), 30)}${nameHtml(x.uid, x.nickname)',
+     'wrPlayerAvatarHtml(x.uid, 30)}${nameHtml(x.uid, x.nickname)'),
+    ('avatarHtml(sanitizeAv(x.avatar), isLead ? 46 : 34, isLead)',
+     'wrPlayerAvatarHtml(x.uid, isLead ? 46 : 34, isLead)'),
+    ('avatarHtml(sanitizeAv(msg.av), 40)',
+     'wrPlayerAvatarHtml(msg.uid, 40)'),
+    ('👀 ${crown(uid)}${escapeHtml(p.nickname)}${me}',
+     '${window.WordRaceUI ? window.WordRaceUI.avatar(p.wrLook || {}, 24) : "👀"} ${crown(uid)}${escapeHtml(p.nickname)}${me}'),
+]
+for before, after in PLAYER_AVATAR_PATCHES:
+    n=source.count(before)
+    if n!=1:sys.exit(f'Player-specific avatar anchor not found uniquely: {before[:85]} ({n})')
+    source=source.replace(before,after)
 (DIST/'game.js').write_text(source,encoding='utf-8')
 html=(DIST/'index.html').read_text(encoding='utf-8')
 if '<script src="game.js?v=4"></script>' not in html:sys.exit('HTML main script anchor changed')
@@ -86,4 +112,4 @@ assert (DIST/'addons/pet-upgrade.js').is_file(), 'pet-upgrade.js not included'
 assert 'addons/pet-upgrade.js' in html, 'pet-upgrade.js not loaded by index'
 assert 'window.WR_PET_CATALOG' in source, 'pet catalog not built'
 assert 'WordRacePets' in (DIST/'addons/word-race.js').read_text(encoding='utf-8'), 'pet race integration missing'
-print('Word-Race dist ready. Source preserved: hints, host admin, maker rotation, dictionary, score rules.')
+print('Word-Race dist ready. Original variable scoring restored; player wardrobes attached to result/rank/chat/spectator UI.')
