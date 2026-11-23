@@ -85,8 +85,15 @@ body > main{order:2}
 }
 .wr-pet-base{z-index:2}
 /* Original nonemo back hair has a full-width crown / long strands. Do not
-   apply the old 24%-43% vertical fade: it erased much of the visible hair. */
-.wr-avatar .wr-layer-backHair{-webkit-mask-image:none!important;mask-image:none!important}
+   apply the old large fade mask: it erased much of the visible hair.
+   Instead, trim only a tiny strip from the TOP edge and nudge the back hair
+   down slightly so the thin crown seam is hidden without losing the hairstyle. */
+.wr-avatar .wr-layer-backHair{
+  -webkit-mask-image:none!important;mask-image:none!important;
+  clip-path:inset(2.6% 0 0 0);
+  transform:translateY(2px);
+  transform-origin:center top;
+}
 /* For back-hair shopping show the source piece AND the fully layered outfit. */
 .wr-backhair-piece{display:flex;align-items:center;justify-content:center;min-height:85px;width:100%}
 .wr-backhair-piece img{display:block;width:82px;height:100px;object-fit:contain;max-width:100%}
@@ -181,4 +188,5 @@ body > main > #spectatorDashboard:not(.hidden) {margin-top:0!important;margin-bo
 /* 2026-11-23: Hair seam adjustment method 1 only.
    The front-hair PNG gently overlaps the back hair by one display pixel.
    Keep the complete shared 290x356 canvas and original sprite files unchanged. */
-.wr-avatar .wr-layer-frontHair{transform:translateY(1px);transform-origin:center center;}
+/* 수정안 A: 앞머리 위치 원복. 1px 하향은 뒷머리 경계선을 더 드러내므로 제거. */
+.wr-avatar .wr-layer-frontHair{transform:none;transform-origin:center center;}
