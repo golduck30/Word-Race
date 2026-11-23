@@ -50,9 +50,9 @@ if 'wrImportPetExtras' not in s:
  function mutateArcade(state,uid,catalog,params){
   const u=ensure(state,uid,catalog),stake=Number(params.stake),rate=Number(params.rate);
   if(!Number.isSafeInteger(stake)||stake<10||stake>5000||stake%10!==0)throw Error('10~5000코인, 10코인 단위로 입력해 주세요');
-  if(![0,2,5].includes(rate))throw Error('잘못된 배당');
+  if(![0,0.5,1,1.5,1.9,2,5,9,10,25].includes(rate))throw Error('잘못된 배당');
   if(u.coins<stake)throw Error('코인이 부족해요');
-  u.coins=u.coins-stake+stake*rate;
+  u.coins=u.coins-stake+Math.floor(stake*rate);
   return copy(u);
  }
 '''
@@ -81,6 +81,7 @@ if 'WR_PET_EXTRA_RENDER_V1' not in s:
  pet.write_text(s,encoding='utf-8')
 # Browser navigation accesses original host and spectator handlers; no replacement of game rules.
 shutil.copy2(root/'addons/restore-controls.js',dist/'addons/restore-controls.js')
+shutil.copy2(root/'addons/casino-original.js',dist/'addons/casino-original.js')
 css='''\n/* Restore original multiplayer utility controls + pet additional slots. */
 .wr-legacy-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 0;padding:9px;background:#fff;border:1px solid #eee5fb;border-radius:14px}
 .wr-status-line{display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px solid #eee}
@@ -90,7 +91,7 @@ css='''\n/* Restore original multiplayer utility controls + pet additional slots
 .wr-pet-extra-view .wr-pet{--pet-size:105px}
 '''
 style=dist/'addons/word-race.css';style.write_text(style.read_text(encoding='utf-8')+css,encoding='utf-8')
-html=dist/'index.html';t=html.read_text(encoding='utf-8');injection='<script src="addons/restore-controls.js?v=1"></script>\n';
+html=dist/'index.html';t=html.read_text(encoding='utf-8');injection='<script src="addons/casino-original.js?v=20261123"></script>\n<script src="addons/restore-controls.js?v=20261123"></script>\n';
 if 'restore-controls.js' not in t:t=t.replace('</body>',injection+'</body>')
 html.write_text(t,encoding='utf-8')
 print('Restored controls, pet neck/hand slots and friend-only arcade. Note: client arcade is not tamper-proof.')

@@ -101,3 +101,79 @@ body > main{order:2}
 .wr-backhair-inspector img{width:70px;height:83px}
 .wr-backhair-inspector small{font-size:9px;line-height:1.25}
 @media(max-width:550px){.wr-backhair-inspector{right:2px;width:74px}.wr-backhair-inspector img{width:60px;height:75px}}
+
+/* 2026-11-23: Compact gameplay layout.
+   Original todayword main uses flex-1 + justify-between, and #board uses
+   my-auto. Together they stretch the race-to-board and board-to-keyboard
+   spaces to fill the viewport. Keep the room-info panel in document flow. */
+body > main:has(> #board){
+  flex:0 0 auto!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+  padding-top:10px!important;
+}
+body > main > #board{
+  margin-top:10px!important;
+  margin-bottom:8px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+body > main > #keyboard{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+@media(max-width:550px){
+  body > main:has(> #board){padding-top:7px!important;}
+  body > main > #board{margin-top:8px!important;margin-bottom:7px!important;}
+}
+
+/* 2026-11-23 equal physical vertical gaps when game room-info and spectator panel are hidden.
+   The race is outside main, while board and keyboard are children of main.
+   Use one 14px token for both boundaries, with no margin collapsing. */
+:root{--wr-game-gap:14px}
+body > .wr-shell {margin-bottom:0!important}
+body > main:has(> #board) {
+  flex:0 0 auto!important; justify-content:flex-start!important;
+  padding-top:var(--wr-game-gap)!important; padding-bottom:12px!important;
+  row-gap:0!important;
+}
+body > main > #board {
+  margin-top:0!important; margin-bottom:var(--wr-game-gap)!important;
+  margin-left:auto!important; margin-right:auto!important;
+}
+body > main > #keyboard {margin-top:0!important; margin-bottom:0!important;}
+/* When room details or a spectator summary is visible it is content, not a spacer. */
+body > main > #multiplayerInfo:not(.hidden) {margin-bottom:var(--wr-game-gap)!important;}
+body > main > #spectatorDashboard:not(.hidden) {margin-top:0!important;margin-bottom:var(--wr-game-gap)!important;}
+@media(max-width:550px) {
+ :root{--wr-game-gap:12px}
+ body > main:has(> #board){padding-top:var(--wr-game-gap)!important}
+ body > main > #board{margin-top:0!important;margin-bottom:var(--wr-game-gap)!important}
+}
+/* The original todayword casino presentation is dark, with dedicated play stage. */
+.wr-casino{background:linear-gradient(180deg,#0f172a,#1e1b4b);color:white;padding:20px;border-radius:18px;display:grid;gap:13px;max-width:440px;margin:auto;font-family:inherit;box-shadow:0 16px 40px #15113825}
+.wr-casino .wc-muted{font-size:12px;color:#c7d2fe;line-height:1.5}
+.wr-casino .wc-balance{display:flex;justify-content:space-between;align-items:center;background:#ffffff18;border-radius:12px;padding:12px}
+.wr-casino .wc-balance strong{font-size:21px;color:#fcd34d}
+.wr-casino .wc-tabs,.wr-casino .wc-chips{display:grid;gap:6px}
+.wr-casino .wc-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.wr-casino .wc-chips{grid-template-columns:repeat(5,minmax(0,1fr))}
+.wr-casino button{cursor:pointer;border:0;border-radius:9px;padding:10px 5px;font-size:12px;font-weight:900;background:#ffffff1b;color:#fff}
+.wr-casino button:hover{background:#ffffff38}
+.wr-casino button.active{background:#fbbf24;color:#111827}
+.wr-casino button:disabled{opacity:.5;cursor:wait}
+.wr-casino input{width:100%;padding:11px;border-radius:9px;border:1px solid #ffffff4d;background:#ffffff14;color:#fff;box-sizing:border-box}
+.wr-casino .wc-stage{background:#0005;min-height:148px;border-radius:13px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px}
+.wr-casino .wc-face{font-size:60px;line-height:1.2;min-height:70px}
+.wr-casino .wc-reels{display:flex;gap:9px;font-size:44px}
+.wr-casino .wc-reels span{background:#ffffff13;border:1px solid #ffffff24;border-radius:10px;padding:8px 3px;min-width:59px;text-align:center}
+.wr-casino .wc-choices{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%}
+.wr-casino .wc-choices button:first-child{background:#fbbf24;color:#111827}
+.wr-casino .wc-choices button:last-child{background:#818cf8;color:#111827}
+.wr-casino .wc-play{background:#f43f5e;color:#fff;width:100%;padding:12px}
+.wr-casino .wc-play.roulette{background:#10b981}
+.wr-casino .wc-result{text-align:center;min-height:22px;font-weight:900}
+.wr-casino .wc-result.win{color:#86efac}.wr-casino .wc-result.lose{color:#fda4af}
+.wr-casino .wc-payout,.wr-casino .wc-log{font-size:11px;color:#a5b4fc;line-height:1.7}
+.wr-casino .wc-log{border-top:1px solid #ffffff1c;padding-top:7px}
+@media(prefers-reduced-motion:reduce){.wr-casino *{animation:none!important}}

@@ -74,7 +74,7 @@ html=html.replace('<title>오늘의 단어 - 대결 모드</title>','<title>Word
 html=html.replace('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>', '''<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 ''')
-html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css?v=20261120c">\n</head>',1)
+html=html.replace('</head>','<link rel="stylesheet" href="addons/word-race.css?v=20261123gapcasino">\n</head>',1)
 html=html.replace('<script src="game.js?v=4"></script>', '''<script src="firebase-config.js"></script>
     <script src="addons/spark-economy.js?v=20261120c"></script>
     <script src="addons/pet-upgrade.js?v=20261120c"></script>

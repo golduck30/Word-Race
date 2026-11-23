@@ -39,6 +39,7 @@ jobs:
           node --check dist/addons/spark-economy.js
           node --check dist/addons/bootstrap.js
           node --check dist/addons/restore-controls.js
+          node --check dist/addons/casino-original.js
           node --check dist/solo.js
           node tests/spark-economy.test.js
           node tests/pet-upgrade.test.js
