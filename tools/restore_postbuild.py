@@ -13,11 +13,11 @@ game=dist/'game.js';s=game.read_text(encoding='utf-8')
 if 'WR_PET_EXTRA_CATEGORIES_V1' not in s:
  s+='''\n/* WR_PET_EXTRA_CATEGORIES_V1 — original todayword optional neck and hand/side assets. */
 (function(){
-  const src=typeof EXTRA_SHOP_ITEMS==='object' ? EXTRA_SHOP_ITEMS : {};
+  const src=typeof SHOP_ITEMS==='object' ? SHOP_ITEMS : {}; // Original todayword: neck/side live in SHOP_ITEMS, not EXTRA_SHOP_ITEMS
   const read=(keys)=>keys.flatMap(k=>Array.isArray(src[k])?src[k]:[]);
-  const convert=(rows)=>rows.map(x=>({id:String(x.id),name:String(x.n||x.name||x.id),price:Math.max(0,Number(x.p||x.price)||0),emoji:String(x.emoji||x.icon||x.e||x.glyph||'🎀')}));
-  window.WR_PET_CATALOG.necks=convert(read(['neck']));
-  window.WR_PET_CATALOG.hands=convert(read(['hand','side','hands','handSide']));
+  const convert=(rows)=>rows.map(x=>({id:String(x.id),name:String(x.n||x.name||x.id),price:Math.max(0,Number(x.p??x.price??0)||0),emoji:String(x.emoji||x.icon||x.e||x.glyph||x.id||'🎀')}));
+  window.WR_PET_CATALOG.necks=[{id:'neck:none',name:'목 장식 없음',price:0,emoji:'❌'},...convert(read(['neck']))];
+  window.WR_PET_CATALOG.hands=[{id:'hand:none',name:'손/옆 장식 없음',price:0,emoji:'❌'},...convert(read(['side']))];
 })();
 '''
  game.write_text(s,encoding='utf-8')
@@ -72,8 +72,8 @@ if 'WR_PET_EXTRA_RENDER_V1' not in s:
  pos=s.find(start)
  if pos<0:sys.exit('Pet return anchor missing')
  s=s[:pos]+'''    /* WR_PET_EXTRA_RENDER_V1: accessory slots are independent of wings. */
-    const neckItem=cat().necks?.find(x=>x.id===p.neck);
-    const handItem=cat().hands?.find(x=>x.id===p.hand);
+    const neckItem=p.neck&&p.neck!=='neck:none'?cat().necks?.find(x=>x.id===p.neck):null;
+    const handItem=p.hand&&p.hand!=='hand:none'?cat().hands?.find(x=>x.id===p.hand):null;
     const neckHtml=neckItem?`<span class="wr-pet-neck" title="${esc(neckItem.name)}">${esc(neckItem.emoji||'🎀')}</span>`:'';
     const handHtml=handItem?`<span class="wr-pet-hand" title="${esc(handItem.name)}">${esc(handItem.emoji||'🪄')}</span>`:'';
 '''+s[pos:]

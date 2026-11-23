@@ -177,3 +177,8 @@ body > main > #spectatorDashboard:not(.hidden) {margin-top:0!important;margin-bo
 .wr-casino .wc-payout,.wr-casino .wc-log{font-size:11px;color:#a5b4fc;line-height:1.7}
 .wr-casino .wc-log{border-top:1px solid #ffffff1c;padding-top:7px}
 @media(prefers-reduced-motion:reduce){.wr-casino *{animation:none!important}}
+
+/* 2026-11-23: Hair seam adjustment method 1 only.
+   The front-hair PNG gently overlaps the back hair by one display pixel.
+   Keep the complete shared 290x356 canvas and original sprite files unchanged. */
+.wr-avatar .wr-layer-frontHair{transform:translateY(1px);transform-origin:center center;}
